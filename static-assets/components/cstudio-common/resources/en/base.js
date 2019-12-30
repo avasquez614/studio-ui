@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioAuthoring.Messages.registerBundle("siteDashboard", "en", {
     dashboardTitle: "Dashboard",
 
@@ -20,8 +37,10 @@ CStudioAuthoring.Messages.registerBundle("siteDashboard", "en", {
     dashletGoLiveHideInProgress: "Hide \"In-Progress\" Items",
     dashletGoLiveColPageName: "Item Name",
     dashletGoLiveColEdit: "Edit",
+    dashletGoLiveColView: "View",
     dashletGoLiveColURL: "URL",
-    dashletGoLiveColPublishDate: "Publish Date & Time",
+    dashletGoLiveColEnvironment: "Environment",
+    dashletGoLiveColPublishDate: "Publish Date",
     dashletGoLiveColLastEditedBy: "Last Edited By",
     dashletGoLiveColLastEditedDate: "Last Edited",
     dashletGoLivePages: "Pages ({0})",
@@ -36,6 +55,8 @@ CStudioAuthoring.Messages.registerBundle("siteDashboard", "en", {
     dashletApprovedSchedColGoLiveDate: "Go Live Date",
     dashletApprovedSchedColEdit: "Edit",
     dashletApprovedSchedColURL: "URL",
+    dashletApprovedSchedColEnvironment: "Environment",
+    dashletApprovedSchedColPackageId: "Package Id",
     dashletApprovedSchedColLastEdited: "Last Edited",
     dashletApprovedSchedFilterPages: "Pages",
     dashletApprovedSchedFilterComponents: "Components",
@@ -51,7 +72,7 @@ CStudioAuthoring.Messages.registerBundle("siteDashboard", "en", {
     dashletRecentDeployColMadeLiveDateDate: "Publish Date",
     dashletRecentDeployColEdit: "Edit",
     dashletRecentDeployColURL: "URL",
-    dashletRecentDeployColEndpoint: "Server",
+    dashletRecentDeployColEndpoint: "Environment",
     dashletRecentDeployColDeployBy: "Published By",
     dashletRecentDeployColLastEdited: "Last Edited",
     dashletRecentDeployColPageName: "Item Name",
@@ -141,7 +162,10 @@ CStudioAuthoring.Messages.registerBundle("contextnav", "en", {
     publishStatus: "Publish Status",
     idle: "Idle",
     busy: "Busy",
-    stopped: "Stopped"
+    ready: "Ready",
+    stopped: "Stopped",
+    started: "Started",
+    quickCreateEmpty:"Nothing is configured for Quick Create. Please ask your system administrator to configure your desired quick create content types."
 
 });
 
@@ -155,7 +179,6 @@ CStudioAuthoring.Messages.registerBundle("previewTools", "en", {
     iphone: "iPhone5iPhone5S",
     iPad: "iPad",
     targeting: "Targeting",
-    analytics: "Analytics",
     translation: "Translation",
     inContextEditOn: "In-Context Edit On",
     inContextEditOff: "In-Context Edit Off",
@@ -219,7 +242,12 @@ CStudioAuthoring.Messages.registerBundle("previewTools", "en", {
     documentation: "Documentation",
     about: "About",
     settings: "Settings",
-    signOut: "Sign Out"
+    signOut: "Sign Out",
+    mainMenu: "Main Menu",
+
+    videoProcessed: 'Video is being processed, preview will be available when processing is complete',
+    quickCreate: "Quick Create",
+    inContextEdit: "In-Context Edit"
 
 });
 
@@ -234,7 +262,6 @@ CStudioAuthoring.Messages.registerBundle("siteDropdown", "en", {
     staticassets: "Static Assets",
     templates: "Templates",
     scripts: "Scripts",
-    analyticsDashboard: "Analytics Dashboard",
     adminConsole: "Admin Console",
     siteconfig: "Site Config",
     previewSync: "Preview Sync",
@@ -362,7 +389,7 @@ CStudioAuthoring.Messages.registerBundle("forms", "en", {
     changeTemplateDialogTitle:"Warning: Change Content Type",
     changeTemplateDialogSubTitle:"Crafter Studio",
     changeTemplateDialogBody:"The following operation may result in data loss. Would you like to proceed?",
-    
+
     bulkPublishDialogTitle:"Warning: Bulk Publish",
     bulkPublishDialogBody:"Bulk publish will force publish all items that match the pattern requested including their dependencies.</br> Please make sure that all modified items (including potentially someone's work in progress) are ready to </br> be published before continuing.",
     bulkPublish: "Bulk Publish",
@@ -388,13 +415,15 @@ CStudioAuthoring.Messages.registerBundle("forms", "en", {
     historyDialogCompare: "Compare",
 
     deleteDialogTitle: "Delete",
-    deleteDialogSubTitle: "The following checked items will be deleted:",
+    deleteDialogSubTitle: "Selected items will be deleted along with their items. Please review dependent items before deleting as these will end-up with broken link references.",
     deleteDialogSetLink: 'Set everything to "Now"',
     deleteDialogPage: "Page",
     deleteDialogDelete: "Delete",
     deleteDialogNow: "Now",
     deleteDialogFeedBack: "Dependencies must be checked before you can submit",
     deleteDialogNoItemsSelected: "No items selected",
+    deletedTitle: "Selection Deleted",
+    deletedMessage: "The selection is being deleted and will be removed shortly.",
 
     deleteSubmitDialogTitle: "Submit for deletion",
     deleteSubmitDialogTime: "When would you like the checked item(s) to be deleted?",
@@ -402,7 +431,8 @@ CStudioAuthoring.Messages.registerBundle("forms", "en", {
     deleteSubmitDialogAsSoon: "As soon as possible.",
 
     approveDialogTitle: "Approve for Publish",
-    approveDialogSubTitle: "The following checked items will go live.",
+    approveDialogSubTitle: "Selected files will be published. Hard dependencies are automatically included. Soft dependencies are optional and you may choose which to include.",
+    approveDialogWarning:"WARNING: The items you have selected for approval were submitted with different requested publish dates/times.",
     dependenciesDialogTitle: "Dependencies",
     dependenciesDialogSubTitle: "Dependencies shown for:",
     dependsOn: "Refers to this item",
@@ -422,6 +452,23 @@ CStudioAuthoring.Messages.registerBundle("forms", "en", {
     requestApproveDialogTitle: "Request Publish",
     requestApproveDialogSubTitle: "When would you like the checked item(s) to go live?",
     requestApproveDialogEmailMe: "Email me when items are approved for publish.",
+
+    itemsForPublish:"Items to Publish",
+    selectAll:"Select All",
+    hardDependencies:"Hard Dependencies",
+    submissionMandatory: "Submission mandatory",
+    softDependencies:"Soft Dependencies",
+    submissionOptional:"Submission optional",
+    showAllDependencies:"Show All Dependencies",
+    changesSelectionItems:'Changes in the selection of items to publish will require "all dependencies" to be recalculated.',
+    loadingDependencies:"Loading Dependencies, please wait...",
+
+    childItemsText:"Child Items",
+    willGetDeleted:"Will get deleted",
+    dependendtItems:"Dependent Items",
+    brokenItems:"Will have broken references",
+    deleteItems:"Delete Items",
+    uploadingDepenedents:"Updating dependents, please wait...",
 
     newContTypeDialogTitle: "Create Content Type",
     newContTypeDialogDisplayLabel: "Display Label",
@@ -497,31 +544,52 @@ CStudioAuthoring.Messages.registerBundle("forms", "en", {
     numberPerPage: "Enter a number in show item per page.",
     revertError: "Revert failed.",
     legacyError: "legacy form server is no longer supported",
-    contentTypesEmpty: "There are no content types available that can be created at the configured path."
+    contentTypesEmpty: "There are no content types available that can be created at the configured path.",
+    componentCategoriesError: "There are no categories available that can be created.",
+    pluginError: "Issues were found with your plugin configuration. The following properties are missing:",
+    pluginErrorSolution: "Go to <a id='siteConfigURL'>[site config page]</a> and select the 'Site Config Tools' on the dropdown to edit the file.",
+    control: "Control: ",
+    datasource: "Datasource: ",
+    propertyMessage: " property is missing",
+    propertiesMessage: " properties are missing"
 });
 
 CStudioAuthoring.Messages.registerBundle("search", "en", {
-    defaultTitle: "Search",
-    searchButtonLabel: "Search",
-    keywordsLabel: "Keywords",
-    searchResults: "Search Results",
-    showing: "(Showing {0}-{1} of {2})",
-    hideDescriptions: "Hide Descriptions",
-    showDescriptions: "Show Descriptions",
-    show: "Show",
-    sort: "Sort",
-    sortRelevance: "Relevance",
-    sortAlphabetical: "Alphabetical",
-    sortCreateDate: "Create Date",
-    pagePrevious: "Previous",
-    pageNext: "Next",
-    resultsEdited: "Edited",
-    resultsBy: "By",
-    resultsUnknownType: "Unknown Type",
-    resultsTemplate: "Template",
-    errSearchFailed: "Search Failed. Try adjusting your filters. Cause: If issue persists contact administrator with error: {0}",
-    errNoResults: "No results found.",
-    zeroResults: "(0 results)"
+    searchInput: "Search",
+    numResults: "Number of Results",
+    selectAll: "Select All",
+    filters: "Filters",
+    asc: "Ascending",
+    desc: "Descending",
+    sortOrder: "Sort Order",
+    sortBy: "Sort By",
+    name: "Name",
+    images: "Images",
+    videos: "Videos",
+    width: "Width",
+    height: "Height",
+    "content-type": "Content Type",
+    "mime-type": "MIME Type",
+    "last-edit-date": "Last Edit Date",
+    size: "Content Size",
+    today: "Today",
+    "in-last-day": "In last day",
+    "in-last-week": "In last week",
+    "over-a-month-ago": "Over a month ago",
+    "over-six-months-ago": "Over six months ago",
+    "over-a-week-ago": "Over a week ago",
+    "over-a-year-ago": "Over a year ago",
+    paginationFirst: "First",
+    paginationPrev: "Prev",
+    paginationNext: "Next",
+    paginationLast: "Last",
+    seeMore: 'See More',
+    seeLess: 'See Less',
+    under: 'Under',
+    above: 'and Above',
+    errorMessage: 'There was an issue completing your search, please contact the Administrator if this issue persists.',
+    clear: 'Clear',
+    apply: 'Apply'
 });
 
 CStudioAuthoring.Messages.registerBundle("browse", "en", {
@@ -547,7 +615,7 @@ CStudioAuthoring.Messages.registerBundle("browse", "en", {
     408: "CMIS Timeout.",
     500: "Internal server error.",
     503: "CMIS Unavailable."
-}); 
+});
 
 CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     contenttypes: "Content Types",
@@ -556,6 +624,8 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     workflowstates: "Workflow States",
     logginglevels: "Logging Levels",
     logconsole: "Log Console",
+    publishing: "Publishing",
+    status: "Status",
     audit: "Audit",
     groups: "Groups",
     contentTypes: "Content Types",
@@ -582,7 +652,7 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     minOccurs: "Minimum Occurances",
     maxOccurs: "Maximum Occurances",
     formBasics: "Form Basics",
-    formTitle: "title",
+    formTitle: "Title",
     description: "Description",
     objectType: "Object Type",
     contentType: "Content Type",
@@ -621,12 +691,16 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     /*Controls*/
     textArea: "Text Area",
     linkTextarea:"Link Text Area",
-    richTextEditor: "Rich Text Editor",
+    richTextEditor: "Rich Text Editor (TinyMCE 2)",
+    rteTinyMCE5: "Rich Text Editor (TinyMCE 5)",
     input: "Input",
+    numericInput: "Numeric input",
+    uuid: "UUID",
     linkInput:"Link Input",
     dropdown: "Dropdown",
     linkedDropdown:"Linked Dropdown",
     dateTime: "Date / Time",
+    time: "Time",
     checkBox: "Check Box",
     groupedCheckboxes: "Grouped Checkboxes",
     itemSelector: "Item Selector",
@@ -645,7 +719,21 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
 
     /*Datasources */
     childContent: "Child Content",
+    embeddedContent: "Embedded Content",
     imageUploadedDesktop: "Image Uploaded From Desktop",
+    WebDAVUploadImage: "Image Uploaded to WebDav Repository",
+    WebDAVUploadVideo: "Video Uploaded to WebDav Repository",
+    imageWebDavRepository:"Image From WebDav Repository",
+    videoWebDavRepository:"Video From WebDav Repository",
+    fileWebDavRepository:"File From WebDav Repository",
+    fileUploadedWebDavRepository:"File Uploaded to WebDav Repository",
+    S3UploadImage: "Image Uploaded to S3 Repository",
+    S3UploadVideo: "Video Uploaded to S3 Repository",
+    imageS3Repository:"Image From S3 Repository",
+    videoS3Repository:"Video From S3 Repository",
+    videos3Transcoding: "Video Transcoding From S3 Repository",
+    fileS3Repository:"File From S3 Repository",
+    fileUploadedS3Repository:"File Uploaded to S3 Repository",
     DAMImage: "DAM Image Flickr",
     fileUploadedDesktop: "File Uploaded From Desktop",
     flashUploadedDesktop: "Flash Uploaded from Desktop",
@@ -659,7 +747,10 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     hubspotForms: "Hubspot Forms",
     imageFromRepository: "Image From Repository",
     imageFromCMISRepository: "Image From CMIS Repository",
-    CMISRepository: "CMIS Repository",
+    CMISRepository: "File from CMIS Repository",
+    CMISUpload: "File Uploaded to CMIS Repository",
+    CMISUploadImage:"Image Uploaded to CMIS Repository",
+    CMISUploadVideo:"Video Uploaded to CMIS Repository",
     salesforceCampaigns: "Salesforce Campaigns",
     treeContent: "Tree content",
 
@@ -668,6 +759,7 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     maxLength: "Max Length",
     width: "Width",
     height: "Height",
+    autoGrow: "Auto Grow",
     allowResize: "Allow Resize",
     forceRootBlockP: "Force Root Block p Tag",
     forcePNewLines: "Force p tags New Lines",
@@ -676,6 +768,7 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     supportedChannels: "Supported Channels",
     RTEConfiguration: "RTE Configuration",
     imageManager: "Image Manager",
+    videoManager: "Video Manager",
     showDate: "Show Date",
     showTime: "Show Time",
     showClear: "Show Clear Value",
@@ -690,6 +783,7 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     showSelectAll: 'Show "Select All"',
     allowEmptyValue: "Allow Empty Value",
     thumbnailWidth: "Thumbnail Width",
+    thumbnailHeight: "Thumbnail Height",
     displaySize: "Display Size",
     text: "Text",
     minSize: "Min Size",
@@ -718,10 +812,25 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     showKeys: "Show keys (item sel. only)",
     taxonomyName: "Taxonomy Name",
     defaultType: "Default Type",
+    contentType: "Content Type",
     displayTemplate: "Display Template",
+    noTemplateRequired: "No Template Required",
     mergeStrategy: "Merge Strategy",
     componentPath: "Component Path",
     dependsOn: "Depends On",
+    profileId: "Profile Id",
+    path: "Path",
+    type: "Type",
+    quickCreate: "Quick Create",
+    showQuickCreate: "Show in Quick Create",
+    destinationPath: "Destination Path Pattern",
+    inputProfileId: "Input Profile Id",
+    outputProfileId: "Output Profile Id",
+    postfixes: "Postfixes",
+    enableCreateNew: "Enable Create New",
+    enableBrowseExisting: "Enable Browse Existing",
+    enableSearchExisting: "Enable Search Existing",
+    useSearch: "Use Search",
 
     /*Restrictions*/
     required: "Required",
@@ -779,10 +888,6 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     confTabSelectConf: "Select Configuration",
     confTabConfigurations: "Configurations",
     confTabConfDesc: "Defines this list of configurations",
-    confTabAnalyticsDashboardConf: "Analytics Dashboard Configuration",
-    confTabAnalyticsDashboardConfDesc: "Defines types of reports shown on Analytics Dashboard",
-    confTabAnalyticsPreviewConf: "Analytics Preview Configuration",
-    confTabAnalyticsReportConf: "Analytics Report Configuration",
     confTabContextualNavigationConf: "Contextual Navigation Configuration",
     confTabContextualNavigationConfDesc: "Defines modules on the site contextual navigation bar",
     confTabSidebarConf: "Sidebar Configuration",
@@ -793,8 +898,12 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     confTabDevEnvironmentConfDesc: "Defines a dev environment configuration",
     confTabTargetsConf: "Targets Configuration",
     confTabTargetsConfDesc: "Defines a list of targets used for form datasource",
-    confTabRTEConf: "RTE Configuration",
+    confTabRTEConf: "RTE (TinyMCE 2) Configuration",
     confTabRTEConfDesc: "Defines Rich Text Editors configurations in form",
+    confTabRTEtMCE5Conf: "RTE (TinyMCE 5) Configuration",
+    confTabRTEtMCE5ConfDesc: "Defines Rich Text Editors configurations in form",
+    confTabCodeEditorConf: "Code Editor Configuration",
+    confTabCodeEditorConfDesc: "Defines Code Editor configurations",
     confTabPreviewAssetConf: "Preview Asset Configuration",
     confTabPreviewAssetConfDesc: "Defines a list of editable assets associated with XML contents",
     confTabPreviewComponentsConf: "Preview Components Configuration",
@@ -833,10 +942,29 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     fileNotImage: "The uploaded file is not of type image",
     loadImageError:"Unable to load the selected image. Please try again or select another image",
 
+    /*Postfixes*/
+    iDescription: "For integer number.",
+    sDescription: "For string.",
+    lDescription: "For long integer number.",
+    tDescription: "For multiple words or tokens.",
+    bDescription: "For boolean (true or false).",
+    fDescription: "For floating point number.",
+    dDescription: "For long floating point number.",
+    dtDescription: "For date in ISO 8601 date format.",
+    toDescription: "For time in HH:mm:ss format.",
+    htmlDescription: "For text with html tags.",
+    oDescription: "For object.",
+    enDescription: "For multiple words or tokens.",
+    txtDescription: "For multiple words or tokens.",
+
     /* Errors */
     error: "Error",
     errorTitle: ". Please fill every title for fields and datasources.",
     errorName: ". Please fill variable name for: ",
+    postfixError: "Model fields require their respective data type postfix: ",
+    optionsPostfixError:"options are ",
+    optionPostfixError:"option is ",
+    andPostfixError:"and",
     contentTypeNotFound: "Component's content type not found.",
     failConfig: "Failed to load configuration.",
     noConfPathError: "No configuration path is defined.",
@@ -853,7 +981,18 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "en", {
     delete: "Delete",
     edit: "Edit",
     createNew: "Create New",
-    browseExisting: "Browse for Existing"
+    browseExisting: "Browse for Existing",
+    searchExisting: "Search for Existing",
+
+    /*help popover*/
+    pattern: "Pattern",
+    objectIdPattern:"Inserts a GUID.",
+    yearPattern:"Inserts the current year (4 digit year).",
+    monthPattern:"Inserts the current month (2-digit month of the year).",
+    yyyyPattern:"Inserts the current year (4 digit year).",
+    mmPattern:"Inserts the current month (2-digit month of the year).",
+    ddPattern:"Inserts the current day (2-digit day of the month)."
+
 });
 
 CStudioAuthoring.Messages.registerBundle("targeting", "en", {
@@ -862,4 +1001,15 @@ CStudioAuthoring.Messages.registerBundle("targeting", "en", {
     apply: "Apply",
     cancel: "Cancel",
     userProps: "User Properties"
+});
+
+CStudioAuthoring.Messages.registerBundle("dialogs", "en", {
+  upload: "Upload",
+  uploadSelect: "Please select a file to upload",
+  file: "File",
+  chooseFile: "Choose File",
+  noFileChosen: "No file chosen",
+  uploadBtn: "Upload",
+  cancelBtn: "Cancel",
+  uploading: "Uploading"
 });

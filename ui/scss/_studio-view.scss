@@ -1,3 +1,20 @@
+/*!
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 @import "variables";
 @import "../../static-assets/libs/bootstrap-sass-official/assets/stylesheets/bootstrap/mixins";
 // Reset and dependencies
@@ -179,6 +196,14 @@
     position: absolute;
     top: 48%;
     left: 48%;
+    z-index: 110038!important;
+    color: #3f66a0;
+
+  }
+
+  #loadSpinnerMask{
+        z-index: 110037!important;
+        display: block;
   }
 
 }
@@ -212,7 +237,7 @@
   }
 
   .view-caption {
-    margin: 0 0 20px;
+    margin: 0 0 15px;
   }
 
   .action-wrapper{
@@ -257,6 +282,17 @@
   p.validation{
     color: #a94442;
     padding: 0px;
+  }
+
+  #differentRequestedDatesWarning{
+    display: none;
+    margin-top: 15px;
+    margin-bottom: 18px;
+
+    p{
+      color: #dd7e2c;
+    }
+
   }
 
 }
@@ -360,7 +396,7 @@ table.scroll-body {
   border: 1px solid #e7e7e7;
   border-bottom-left-radius: $border-radius-base;
   border-bottom-right-radius: $border-radius-base;
-  transition: height .5s, transform .5s;
+  transition: height .25s, transform .25s;
   > .bd {
 
     &.overlay:before {
@@ -401,7 +437,7 @@ table.scroll-body {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.65);
-    z-index: 3000;
+    z-index: 1035;
   }
 
   .studio-ice-dialog {
@@ -442,7 +478,6 @@ table.scroll-body {
 #checkAll-GoLiveQueue{
   padding-left: 23px;
   position: relative;
-  bottom: 3px;
   padding-right: 2px;
   width: 50px;
 }
@@ -451,4 +486,35 @@ table.scroll-body {
   margin: 0 0 0 -20px;
 }
 
+.studio-view .navbar-fixed-top {
+  z-index: 100;
+}
 
+#approve-dialog, #requestDialog{ 
+  .approve-subtitle{
+    font-size: 15px;
+  }
+  .action-wrapper{
+    margin-top: 20px;
+  }
+}
+
+.submission-comment{
+  height: 111px!important;
+}
+
+.delete-submission-comment{
+  height: 65px!important;
+}
+
+.dependencies-display{
+  height: 444px;
+}
+
+.yui-module.yui-overlay .cstudio-dialogue-body .dependencies-display {
+  @import  '../app/src/styles/dependency-selection.scss';
+} 
+
+.dependencies-display.delete-display{
+  height: 385px;
+}

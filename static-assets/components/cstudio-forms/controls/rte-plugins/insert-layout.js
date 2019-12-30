@@ -1,8 +1,25 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioForms.Controls.RTE.InsertLayout = CStudioForms.Controls.RTE.InsertLayout || {
     createControl: function(n, cm, editor) {
         switch (n) {
             case 'insertLayout':
-				var config = tinyMCE.activeEditor.contextControl.rteConfig;
+				var config = tinymce2.activeEditor.contextControl.rteConfig;
 				var layouts = config.rteLayouts.layout;
 				
 				if(!layouts) {
@@ -10,7 +27,7 @@ CStudioForms.Controls.RTE.InsertLayout = CStudioForms.Controls.RTE.InsertLayout 
 				}
 				
 				if(!layouts.length) {
-					layouts = [layouts.layout];
+					layouts = [layouts];
 				}
 
 				if(layouts.length > 0) {	
@@ -30,8 +47,8 @@ CStudioForms.Controls.RTE.InsertLayout = CStudioForms.Controls.RTE.InsertLayout 
                            
                             
                             var onClickFn = function() {
-		                    	tinyMCE.activeEditor.execCommand('mceInsertContent', false, this.layoutPrototype);
-		                    	ed.contextControl.save();
+		                    	tinymce2.activeEditor.execCommand('mceInsertContent', false, this.layoutPrototype);
+                                cm.editor.contextControl.save();
 		                   	};
 		                   	
 		                   	var layoutItem = {title : layout.name, onclick : onClickFn, layoutPrototype: prototype}
@@ -51,9 +68,9 @@ CStudioForms.Controls.RTE.InsertLayout = CStudioForms.Controls.RTE.InsertLayout 
     }
 }
 
-tinymce.create('tinymce.plugins.CStudioInsertLayoutPlugin', CStudioForms.Controls.RTE.InsertLayout);
+tinymce2.create('tinymce2.plugins.CStudioInsertLayoutPlugin', CStudioForms.Controls.RTE.InsertLayout);
 
 // Register plugin with a short name
-tinymce.PluginManager.add('insertlayout', tinymce.plugins.CStudioInsertLayoutPlugin);
+tinymce2.PluginManager.add('insertlayout', tinymce2.plugins.CStudioInsertLayoutPlugin);
 
 CStudioAuthoring.Module.moduleLoaded("cstudio-forms-controls-rte-insert-layout", CStudioForms.Controls.RTE.InsertLayout);

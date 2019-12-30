@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioAdminConsole = {
 	toolContainerEls: [],
 	
@@ -5,7 +22,7 @@ CStudioAdminConsole = {
 		this.containerEl = containerEl;
 		
 		containerEl.innerHTML = 
-				"<div class='categories-panel'></div>" +
+				"<div id='categories-panel' class='categories-panel'><div id='categoriesPanelWrapper'></div></div>" +
 				"<div id='cstudio-admin-console-workarea'></div>";
 
 		CStudioAuthoring.Service.lookupConfigurtion(
@@ -13,7 +30,7 @@ CStudioAdminConsole = {
 			"/administration/site-config-tools.xml",
 			{
 				success: function(config) {
-					var panelEl = YAHOO.util.Selector.query("#admin-console .categories-panel", null, true);
+					var panelEl = YAHOO.util.Selector.query("#admin-console .categories-panel #categoriesPanelWrapper", null, true);
 					this.context.toolbar = new CStudioAdminConsole.Toolbar(panelEl);
 
 					this.context.buildModules(config, panelEl);
@@ -78,6 +95,11 @@ CStudioAdminConsole = {
 				}
 			}
 		}
+
+        var entitlementValidatorP= document.createElement('p');
+        YDom.addClass(entitlementValidatorP, "entitlementValidator");
+        entitlementValidatorP.innerHTML = entitlementValidator;
+        document.getElementById('categories-panel').appendChild(entitlementValidatorP);
     }
 }
 
@@ -118,25 +140,54 @@ CStudioAdminConsole.Toolbar.prototype = {
 
 		toolContainerEl.appendChild(span);
 		toolContainerEl.innerHTML += label;
-	   	YDom.addClass(toolContainerEl, "cstudio-admin-console-item");
+		YDom.addClass(toolContainerEl, "cstudio-admin-console-item");
+		   
+		var elId = label.replace(/\s+/g, '-').toLowerCase();
+		toolContainerEl.id = elId;
 
 	   	var onRenderWorkAreaFn =  function(evt, params) {
-	  		if(params.toolbar.selectedEl) {
-		  		YDom.removeClass(params.toolbar.selectedEl, "cstudio-admin-console-item-selected");
-                CStudioAdminConsole.CommandBar.hide();
-	  		}
-	  		
-	  		params.toolbar.selectedEl = this;
-		   	YDom.addClass(this, "cstudio-admin-console-item-selected");
-			params.tool.renderWorkarea();
-			var arrowEl = document.getElementById("cstudio-admin-console-item-selected-arrow");
-			
-			if(!arrowEl) {
-				arrowEl =  document.createElement("div");
-				arrowEl.id = "cstudio-admin-console-item-selected-arrow";
-			}
-			
-			params.toolbar.selectedEl.appendChild(arrowEl);
+            var self = this;
+
+            if(CStudioAdminConsole.isDirty){
+                CStudioAuthoring.Operations.showSimpleDialog(
+                    "error-dialog",
+                    CStudioAuthoring.Operations.simpleDialogTypeINFO,
+                    CMgs.format(langBundle, "notification"),
+                    CMgs.format(langBundle, "contentTypeModifiedWarn"),
+                    [ { text:CMgs.format(formsLangBundle, "yes"),  handler:function(){
+                        CStudioAdminConsole.isDirty = false;
+                        selectedItem();
+                        this.hide();}, isDefault:false },
+                        { text:CMgs.format(formsLangBundle, "no"),  handler:function(){
+                            this.hide();
+                        }, isDefault:false }],
+                    YAHOO.widget.SimpleDialog.ICON_WARN,
+                    "studioDialog"
+                );
+            }else {
+                CStudioAdminConsole.isDirty = false;
+                selectedItem();
+            }
+
+            function selectedItem(){
+                if(params.toolbar.selectedEl) {
+                    YDom.removeClass(params.toolbar.selectedEl, "cstudio-admin-console-item-selected");
+                    CStudioAdminConsole.CommandBar.hide();
+                }
+
+                params.toolbar.selectedEl = self;
+                YDom.addClass(self, "cstudio-admin-console-item-selected");
+                params.tool.renderWorkarea();
+                var arrowEl = document.getElementById("cstudio-admin-console-item-selected-arrow");
+
+                if(!arrowEl) {
+                    arrowEl =  document.createElement("div");
+                    arrowEl.id = "cstudio-admin-console-item-selected-arrow";
+                }
+
+                params.toolbar.selectedEl.appendChild(arrowEl);
+            }
+
 		}
 
 		onRenderWorkAreaFn.containerEl = toolContainerEl;

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 (function (window, $, Handlebars) {
     'use strict';
 
@@ -114,7 +131,7 @@
         $resultsContainer.on('click', '.magnify-icon', function(){
             var path = $(this).attr('data-source');
             var type = $(this).attr('data-type');
-            me.magnify(path, type);
+            CStudioAuthoring.Utils.previewAssetDialog(path, type);
         });
     };
 
@@ -233,37 +250,39 @@
         item.labelAddLink = CMgs.format(browseLangBundle, "labelAddLink");
         item.labelClone = CMgs.format(browseLangBundle, "labelClone");
 
-        if(item.mimeType.match(/\bimage\b/)){
-            if(repoPath){
-                item.repoPath = repoPath.replace("{item_id}",item.itemId);
-            }
-            var showUrl = true;
-            item.type = "image";
-            item.showUrl = showUrl;
-            item.media = true;
-            var html = template(item);
-            var addedElem = $(html).appendTo($resultsContainer);
-            addedElem.data("item", item);
-        }else{
-            if(item.mimeType.match(/\bvideo\b/)){
+        if(item.mimeType) {
+            if(item.mimeType.match(/\bimage\b/)){
                 if(repoPath){
                     item.repoPath = repoPath.replace("{item_id}",item.itemId);
                 }
                 var showUrl = true;
-                item.type = "video";
+                item.type = "image";
                 item.showUrl = showUrl;
                 item.media = true;
                 var html = template(item);
                 var addedElem = $(html).appendTo($resultsContainer);
                 addedElem.data("item", item);
-            }else {
-                var type = item.isAsset ? "asset" : item.isComponent ? "component" : "page",
-                    showUrl = type == "asset" || type == "page" ? true : false;
-                item.type = type;
-                item.showUrl = showUrl;
-                var html = template(item);
-                var addedElem = $(html).appendTo($resultsContainer);
-                addedElem.data("item", item);
+            }else{
+                if(item.mimeType.match(/\bvideo\b/)){
+                    if(repoPath){
+                        item.repoPath = repoPath.replace("{item_id}",item.itemId);
+                    }
+                    var showUrl = true;
+                    item.type = "video";
+                    item.showUrl = showUrl;
+                    item.media = true;
+                    var html = template(item);
+                    var addedElem = $(html).appendTo($resultsContainer);
+                    addedElem.data("item", item);
+                }else {
+                    var type = item.isAsset ? "asset" : item.isComponent ? "component" : "page",
+                        showUrl = type == "asset" || type == "page" ? true : false;
+                    item.type = type;
+                    item.showUrl = showUrl;
+                    var html = template(item);
+                    var addedElem = $(html).appendTo($resultsContainer);
+                    addedElem.data("item", item);
+                }
             }
         }
     };
@@ -331,23 +350,24 @@
     CStudioBrowse.saveContent = function() {
         var searchId = this.searchContext ? this.searchContext.searchId : "" ;
         var crossServerAccess = false;
+        var opener = window.opener ? window.opener : parent.iframeOpener;
 
         try {
             // unfortunately we cannot signal a form close across servers
             // our preview is in one server
             // our authoring is in another
             // in this case we just close the window, no way to pass back details which is ok in some cases
-            if(window.opener.CStudioAuthoring) { }
+            if(opener.CStudioAuthoring) { }
         }
         catch(crossServerAccessErr) {
             crossServerAccess = true;
         }
 
-        if(window.opener && !crossServerAccess) {
+        if(opener && !crossServerAccess) {
 
-            if(window.opener.CStudioAuthoring) {
+            if(opener.CStudioAuthoring) {
 
-                var openerChildSearchMgr = window.opener.CStudioAuthoring.ChildSearchManager;
+                var openerChildSearchMgr = opener.CStudioAuthoring.ChildSearchManager;
 
                 if(openerChildSearchMgr) {
 
@@ -409,39 +429,6 @@
             window.close();
             $(window.frameElement.parentElement).closest('.studio-ice-dialog').parent().remove(); //TODO: find a better way
         }
-    };
-
-    CStudioBrowse.magnify = function(source, type) {
-        var $container = $('.cstudio-browse-image-popup-overlay'),
-            $img = $container.find('img'),
-            $video = $container.find('video');
-            $img.hide(); $video.hide();
-            $container.removeClass('cstudio-browse-video-popup-overlay');
-
-        if(type.match(/\bvideo\b/)) {
-            $container.addClass('cstudio-browse-video-popup-overlay');
-            $video.show();
-            $video.find('source').attr('src', source);
-            $video.find('source').attr('type', type);
-            $video.load();
-        }else{
-            $img.show();
-            $img.attr('src', source);
-        }
-
-        $container.show();
-
-        $container.one('click', '.close', function(){
-            $container.hide();
-        });
-
-        $container.on('click', function(e) {
-            if (e.target !== this)
-                return;
-
-            $container.hide();
-        });
-
     };
 
     CStudioBrowse.renderContextMenu = function() {
@@ -546,9 +533,11 @@
 
             if(results){
                 var filesPresent = false;
-                results = results.item.children;
+                var currentResults = results.item.children;
+                currentResults.unshift(results.item);
+                results = currentResults;
 
-                var pathLabel = path.replace(/\//g, ' / ');
+                var pathLabel = path ? path.replace(/\//g, ' / ') : '';
                 $('.current-folder .path').html(pathLabel);
 
                 if(results.length > 0){
@@ -570,6 +559,7 @@
                 }
 
                 me.currentResultsPath = path;
+                
             }
         });
     };

@@ -1,40 +1,52 @@
-CStudioForms.Datasources.FileDesktopUpload = CStudioForms.Datasources.FileDesktopUpload ||  
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+CStudioForms.Datasources.FileDesktopUpload = CStudioForms.Datasources.FileDesktopUpload ||
 function(id, form, properties, constraints)  {
    	this.id = id;
    	this.form = form;
    	this.properties = properties;
    	this.constraints = constraints;
-   	
+
    	for(var i=0; i<properties.length; i++) {
-   		if(properties[i].name == "repoPath") {
+   		if(properties[i].name === "repoPath") {
  			this.repoPath = properties[i].value;
    		}
-   	} 
-	
+   	}
+
 	return this;
-}
+};
 
 YAHOO.extend(CStudioForms.Datasources.FileDesktopUpload, CStudioForms.CStudioFormDatasource, {
 	itemsAreContentReferences: true,
 
-    decreaseFormDialog: function(){
-        var id = window.frameElement.getAttribute("id").split("-editor-")[1];
-        if($('#ice-body').length > 0 && $($(".studio-ice-container-"+id,parent.document)[0]).height() > 212){
-            $($(".studio-ice-container-"+id,parent.document)[0]).height(212);
-        }
-    },
 	/**
 	 * action called when user clicks insert file
 	 */
 	add: function(control, multiple) {
 		this._self = this;
+		var me = this;
 
 		var site = CStudioAuthoringContext.site;
 		var path = this._self.repoPath;
 		var isUploadOverwrite = true;
 
 		for(var i=0; i<this.properties.length; i++) {
-			if(this.properties[i].name == "repoPath") {
+			if(this.properties[i].name === "repoPath") {
 				path = this.properties[i].value;
 
 				path = this.processPathsForMacros(path);
@@ -44,9 +56,10 @@ YAHOO.extend(CStudioForms.Datasources.FileDesktopUpload, CStudioForms.CStudioFor
 		var callback = {
 			success: function(fileData) {
 				if (control) {
-					control.insertItem(path + "/" + fileData.fileName, path + "/" + fileData.fileName, fileData.fileExtension, fileData.size);
-					control._renderItems();
-                    control.decreaseFormDialog();
+					control.insertItem(path + "/" + fileData.fileName, path + "/" + fileData.fileName, fileData.fileExtension, fileData.size, me.id);
+					if(control._renderItems){
+						control._renderItems();
+					}
 				}
 			},
 
@@ -63,7 +76,7 @@ YAHOO.extend(CStudioForms.Datasources.FileDesktopUpload, CStudioForms.CStudioFor
 			var addContainerEl = null;
 
 			if(!control.addContainerEl){
-				addContainerEl = document.createElement("div")
+				addContainerEl = document.createElement("div");
 				addContainerEl.create = document.createElement("div");
 				addContainerEl.browse = document.createElement("div");
 
@@ -85,7 +98,7 @@ YAHOO.extend(CStudioForms.Datasources.FileDesktopUpload, CStudioForms.CStudioFor
 				newElTitle = '';
 
 			for(var x = 0; x < datasourceDef.length; x++){
-				if (datasourceDef[x].id == this.id){
+				if (datasourceDef[x].id === this.id){
 					newElTitle = datasourceDef[x].title;
 				}
 			}
@@ -95,7 +108,7 @@ YAHOO.extend(CStudioForms.Datasources.FileDesktopUpload, CStudioForms.CStudioFor
 			createEl.innerHTML = "Create New - " + newElTitle;
 			control.addContainerEl.create.appendChild(createEl);
 
-			var addContainerEl = control.addContainerEl;			
+			addContainerEl = control.addContainerEl;
 			YAHOO.util.Event.on(createEl, 'click', function() {
 				control.addContainerEl = null;
 				control.containerEl.removeChild(addContainerEl);
@@ -109,36 +122,38 @@ YAHOO.extend(CStudioForms.Datasources.FileDesktopUpload, CStudioForms.CStudioFor
 
 	edit: function(key, control) {
 		this._self = this;
+		var me = this;
 
 		var site = CStudioAuthoringContext.site;
 		var path = this._self.repoPath;
 		var isUploadOverwrite = true;
 
 		for(var i=0; i<this.properties.length; i++) {
-			if(this.properties[i].name == "repoPath") {
+			if(this.properties[i].name === "repoPath") {
 				path = this.properties[i].value;
 
 				path = this.processPathsForMacros(path);
 			}
 		}
 
-		var callback = { 
+		var callback = {
 			success: function(fileData) {
 				if (control) {
 					control.deleteItem(key);
-					control.insertItem(path + "/" + fileData.fileName, path + "/" + fileData.fileName, fileData.fileExtension, fileData.size);
-					control._renderItems();
-                    control.decreaseFormDialog();
+					control.insertItem(path + "/" + fileData.fileName, path + "/" + fileData.fileName, fileData.fileExtension, fileData.size, me.id);
+					if(control._renderItems){
+						control._renderItems();
+					}
 				}
 			},
 
 			failure: function() {
 				if (control) {
-					control.failure("An error occurred while uploading the file."); 
+					control.failure("An error occurred while uploading the file.");
 				}
 			},
 
-			context: this 
+			context: this
 		};
 
 		CStudioAuthoring.Operations.uploadAsset(site, path, isUploadOverwrite, callback);

@@ -1,35 +1,50 @@
 <#assign mode = RequestParameters["mode"] />
-<#-- <#assign view = RequestParameters["view"] /> -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
 
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Crafter Studio</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <#include "/templates/web/common/page-fragments/head.ftl" />
     <#include "/templates/web/common/page-fragments/studio-context.ftl" />
 
-    <link rel="stylesheet" href="/static-assets/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="/studio/static-assets/styles/browse.css" />
 
-    <link rel="stylesheet" href="/studio/static-assets/libs/jQuery-contextMenu-master/dist/jquery.contextMenu.min.css" type="text/css">
+    <link rel="stylesheet" href="/studio/static-assets/libs/jQuery-contextMenu-master/dist/jquery.contextMenu.css" type="text/css">
 
-    <script src="/studio/static-assets/libs/jquery/dist/jquery.js"></script>
     <script src="/studio/static-assets/libs/handlebars/handlebars.js"></script>
-    <script src="/studio/static-assets/libs/jstree/dist/jstree.min.js"></script>
+    <script src="/studio/static-assets/libs/jstree/dist/jstree.js"></script>
 
   
     <script src="/studio/static-assets/libs/jQuery-contextMenu-master/dist/jquery.contextMenu.js" type="text/javascript"></script>
-    <script src="/studio/static-assets/libs/jQuery-contextMenu-master/dist/jquery.ui.position.min.js" type="text/javascript"></script>
+    <script src="/studio/static-assets/libs/jQuery-contextMenu-master/dist/jquery.ui.position.js" type="text/javascript"></script>
 
 
     <script type="text/javascript" src="/studio/static-assets/components/cstudio-browse/browse.js"></script>
-    <link rel="stylesheet" type="text/css" href="/studio/static-assets/libs/jstree/dist/themes/default/style.min.css" />
+    <link rel="stylesheet" type="text/css" href="/studio/static-assets/libs/jstree/dist/themes/default/style.css" />
     <link href="/studio/static-assets/themes/cstudioTheme/css/icons.css" type="text/css" rel="stylesheet">
 
     <#assign path="/studio/static-assets/components/cstudio-common/resources/" />
-    <script src="${path}en/base.js?version=${UIBuildId!''}"></script>
-    <script src="${path}kr/base.js?version=${UIBuildId!''}"></script>
-    <script src="${path}es/base.js?version=${UIBuildId!''}"></script>
+    <script src="${path}en/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
+    <script src="${path}kr/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
+    <script src="${path}es/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
+    <script src="${path}de/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
 
     <script>
         var CMgs = CStudioAuthoring.Messages,
@@ -81,25 +96,13 @@
         
       </div>
     </div>
-
-    <div class="cstudio-browse-image-popup-overlay">
-        <div id="cstudio-browse-image-pop-up">
-            <div>
-                <input type="button" class="close btn btn-default" value="x">
-            </div>
-            <img src="">
-            <video id="videoOverlay" controls="true" >
-                <source src="" type="">
-            </video>
-        </div>
-    </div>
   
     <#-- <#if view == "window" >
      <div id="studioBar" class="studio-view">
          <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
              <div class="container-fluid">
                      <a class="navbar-brand" href="/studio/site-dashboard">
-                         <img src="/studio/static-assets/images/crafter_studio_360.png" alt="Crafter Studio">
+                         <img src="/studio/static-assets/images/logo.svg" alt="Crafter CMS">
                      </a>
                  </div>
              </div>
@@ -135,7 +138,13 @@
                 {{#if showUrl}}
                 <span class="cstudio-search-component cstudio-search-component-url">
                   <span class="component-title bold">{{labelUrl}}:</span>
-                  <a href="{{browserUri}}" target="_blank">{{browserUri}}</a>
+                  <a href="{{#if browserUri}}{{browserUri}}{{else}}/{{/if}}" target="_blank">
+                      {{#if browserUri}}
+                        {{browserUri}}
+                      {{else}}
+                        /
+                      {{/if}}
+                  </a>
                 </span>
                 {{/if}}
 

@@ -1,4 +1,21 @@
 
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioAuthoring.Dialogs = CStudioAuthoring.Dialogs || {};
 
 /**
@@ -577,7 +594,7 @@ CStudioAuthoring.Module.requireModule("publish-dialog", "/static-assets/componen
 
                 YConnect.setDefaultPostHeader(false);
                 YConnect.initHeader("Content-Type", "application/xml; charset=utf-8");
-                YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);
+                YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
                 YConnect.asyncRequest('POST', dependencyUrl, {
                     success: function(o) {
 
@@ -627,7 +644,7 @@ CStudioAuthoring.Module.requireModule("publish-dialog", "/static-assets/componen
 
                             dialog.show();
                             me.dialog = dialog;
-                            
+
                             for(var i=0; i<contentItems.length; i++) {
                                 if(contentItems[i].submittedForDeletion==true) {
                                     document.getElementById("globalSetToDateTime").disabled = true;
@@ -638,7 +655,7 @@ CStudioAuthoring.Module.requireModule("publish-dialog", "/static-assets/componen
 
                             YDom.get('acnScrollBoxDiv').innerHTML = CSA.StringUtils.format(
                                 '<div class="spinner"><img src="{0}/static-assets/themes/cstudioTheme/images/wait.gif"> <span class="warn">{1}</span></div>',
-                                CSAContext.authoringAppBaseUri, 'Loading items &amp; dependecies, please wait.');
+                                CSAContext.authoringAppBaseUri, 'Loading items &amp; dependencies, please wait.');
 
                             YEvent.addListener("golivecancelButton", "click", me.closeDialog, me, true);
 
@@ -725,7 +742,7 @@ CStudioAuthoring.Module.requireModule("publish-dialog", "/static-assets/componen
 
             YConnect.setDefaultPostHeader(false);
             YConnect.initHeader("Content-Type", "application/xml; charset=utf-8");
-            YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);
+            YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
             YConnect.asyncRequest('POST', dependencyUrl, {
                 success: function(o) {
 

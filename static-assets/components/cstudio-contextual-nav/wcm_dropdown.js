@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var YEvent = YAHOO.util.Event;
 
@@ -36,7 +53,7 @@ CStudioAuthoring.ContextualNav.WcmDropDown = CStudioAuthoring.ContextualNav.WcmD
         var navBarSiteNameEl = YDom.get('navbar-site-name');
         navBarSiteNameEl.innerHTML = CStudioAuthoringContext.site;
 
-        if (window.location.pathname.indexOf("search") > -1 || window.location.pathname.indexOf("browse") > -1 || window.location.pathname.indexOf("site-config") > -1) {
+        if (/*window.location.pathname.indexOf("search") > -1 ||*/ window.location.pathname.indexOf("browse") > -1 || window.location.pathname.indexOf("site-config") > -1) {
             mainContainerEl.innerHTML = '';
         } else {
             mainContainerEl.innerHTML =
@@ -53,7 +70,7 @@ CStudioAuthoring.ContextualNav.WcmDropDown = CStudioAuthoring.ContextualNav.WcmD
                             '<div id="acn-context-tooltip" class="acn-context-tooltip"></div>' +
                             '<div id="acn-dropdown-menu" style="height:100%" class="acn-dropdown-menu">' +
                                 '<div id="acn-dropdown-menu-inner" class="acn-dropdown-menu-inner unselectable"></div>' +
-                                '<div id="acn-dropdown-footer" class="acn-dropdown-footer"></div>' +
+                                '<div id="acn-dropdown-footer" class="acn-dropdown-footer"><p>'+ entitlementValidator +'</p></div>' +
                             '</div>' +
                         '</div>' +
                         '</div>' +
@@ -182,6 +199,19 @@ CStudioAuthoring.ContextualNav.WcmDropDown = CStudioAuthoring.ContextualNav.WcmD
                         context: this
                     });
 
+                    $( window ).resize(function() {
+                        if( window.innerWidth >= 768 ){
+                            $(".site-dropdown-open .studio-preview").css({ left :  cfg.width});
+                            $(".site-dropdown-open .site-dashboard").css({ left :  cfg.width});
+                            $(".site-dropdown-open .cstudio-search").css({ left :  cfg.width});
+                        }else{
+                            $(".site-dropdown-open .studio-preview").css({ left :  0});
+                            $(".site-dropdown-open .site-dashboard").css({ left :  0});
+                            $(".site-dropdown-open .cstudio-search").css({ left :  0});
+                        }
+
+                    });
+
                     return this;
                 },
                 /**
@@ -253,6 +283,7 @@ CStudioAuthoring.ContextualNav.WcmDropDown = CStudioAuthoring.ContextualNav.WcmD
                                 ui.size.height = ui.originalSize.height;
                                 $(".site-dropdown-open .studio-preview").css({ left :  ui.size.width});
                                 $(".site-dropdown-open .site-dashboard").css({ left :  ui.size.width});
+                                $(".site-dropdown-open .cstudio-search").css({ left :  ui.size.width});
                             }
                         });
                     });
@@ -272,14 +303,24 @@ CStudioAuthoring.ContextualNav.WcmDropDown = CStudioAuthoring.ContextualNav.WcmD
                     if (cfg.visible !== visible) {
                         if (visible) {
                             $('html').addClass('site-dropdown-open');
-                            $(".site-dropdown-open .studio-preview").css({ left :  cfg.width});
-                            $(".site-dropdown-open .site-dashboard").css({ left :  cfg.width});
+
+                            if( window.innerWidth >= 768 ){
+                                $(".site-dropdown-open .studio-preview").css({ left :  cfg.width});
+                                $(".site-dropdown-open .site-dashboard").css({ left :  cfg.width});
+                                $(".site-dropdown-open .cstudio-search").css({ left :  cfg.width});
+                                
+                            }else{
+                                $(".site-dropdown-open .studio-preview").css({ left :  0});
+                                $(".site-dropdown-open .site-dashboard").css({ left :  0});
+                                $(".site-dropdown-open .cstudio-search").css({ left :  0});
+                            }
                             YDom.addClass('acn-dropdown-wrapper', 'site-dropdown-open');
                             animator.slideIn();
                         } else {
                             $('html').removeClass('site-dropdown-open');
                             $(".studio-preview").css({ left :  0});
                             $(".site-dashboard").css({ left :  0});
+                            $(".site-dropdown-open .cstudio-search").css({ left :  0});
                             YDom.removeClass('acn-dropdown-wrapper', 'site-dropdown-open');
                             animator.slideOut();
                         }
@@ -411,8 +452,9 @@ CStudioAuthoring.ContextualNav.WcmDropDown = CStudioAuthoring.ContextualNav.WcmD
                                     try {
                                         moduleClass.initialize(moduleConfig);
                                     } catch (e) {
-                                        // in preview, this function undefined raises error -- unlike dashboard.
-                                        // I agree, not a good solution!
+                                      // TODO: Address this error properly when it occurs.
+                                      // This is catching other errors without intention. Address the specific cases properly.
+                                      console.error(e.message);
                                     }
                                 }
                             };

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioAuthoring.Utils.addCss("/static-assets/components/cstudio-admin/mods/bulkoperations.css");
 CStudioAdminConsole.Tool.BulkOperations = CStudioAdminConsole.Tool.BulkOperations ||  function(config, el)  {
     this.containerEl = el;
@@ -44,7 +61,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.BulkOperations, CStudioAdminConsole.Tool, 
                     "<form name='contentFromWCM'>" +
                     "<div class='contentTypePopupHeader'>" + CMgs.format(formsLangBundle, "bulkPublishDialogTitle")+ "</div> " +
                     "<div class='contentTypeOuter'>"+
-                        "<div>" + CMgs.format(formsLangBundle, "bulkPublishDialogBody")+ "</div>" +                    
+                        "<div>" + CMgs.format(formsLangBundle, "bulkPublishDialogBody")+ "</div>" +
                     "</div>" +
                     "<div class='contentTypePopupBtn'>" +
                         "<input type='submit' class='btn btn-primary ok' id='acceptCTChange' value='" +CMgs.format(formsLangBundle, 'yes')+ "' />" +
@@ -70,7 +87,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.BulkOperations, CStudioAdminConsole.Tool, 
 
             var continueFn = function continueFn (e) {
                 e.preventDefault();
-                dialog.destroy();   
+                dialog.destroy();
 
                 var envSelectEl = document.getElementById("go-pub-channel");
                 var environment = envSelectEl[envSelectEl.selectedIndex].value;
@@ -83,12 +100,12 @@ YAHOO.extend(CStudioAdminConsole.Tool.BulkOperations, CStudioAdminConsole.Tool, 
                         success:function() {},
                         failure: function(err) {}
                     }
-   
-                    YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);                                        
+
+                    YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
                     YConnect.asyncRequest("POST", CStudioAuthoring.Service.createServiceUri(serviceUri), cb);
                     goLiveOpMessage.innerHTML = CMgs.format(langBundle, "publishStarted");
                 }
-            } 
+            }
 
             var cancelFn = function cancelFn (e) {
                 e.preventDefault();
@@ -129,7 +146,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.BulkOperations, CStudioAdminConsole.Tool, 
                         "</div>" +
                     "</div>" +
                     "</br>" +
-                    "<input type='button' class='action-button' value='" + CMgs.format(formsLangBundle, "bulkPublishPublish") + "' onclick='CStudioAdminConsole.Tool.BulkOperations.golive()' /></p>" +
+                    "<input type='button' id='bulk-submit' class='action-button' value='" + CMgs.format(formsLangBundle, "bulkPublishPublish") + "' onclick='CStudioAdminConsole.Tool.BulkOperations.golive()' /></p>" +
                     "<p id='bulk-golive-message'></p>" +
                 "</div>";
 

@@ -1,4 +1,21 @@
-<div class="sites-view col-lg-10 col-lg-offset-1">
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<div class="sites-view mainContainer">
 
     <header class="screen-title">
         <h1>{{ 'dashboard.sites.SITES_LABEL' | translate }}</h1>
@@ -6,7 +23,7 @@
 
     <div ng-if="sites">
         <div ng-show="createSites" class="m10 createSitesBtn pull-left">
-            <button class="btn btn-default btn-pill btn-block" ng-click="createSitesDialog()" ng-class="{ active: $state.includes('create') }">
+            <button id="create-site" class="btn btn-default btn-pill btn-block" ng-click="createSitesDialog()" ng-class="{ active: $state.includes('create') }">
                 <!-- ui-sref="home.sites.create" -->
                 <i class="fa fa-plus-circle"></i> <span>{{ 'dashboard.sites.CREATE_SITE' | translate }}</span>
             </button>
@@ -27,19 +44,32 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr dir-paginate="site in sites | filter:q | itemsPerPage: sitesPag.sitesPerPage" current-page="pagination" total-items="totalSites">
-                        <td class="name">{{site.name}}</td>
+                    <tr id="site-row-{{site.siteId}}" dir-paginate="site in sites | filter:q | itemsPerPage: sitesPag.sitesPerPage" current-page="pagination" total-items="totalSites">
+                        <td class="name">{{site.siteId}}</td>
                         <td class="preview"><a ng-click="editSite(site)">{{ 'dashboard.sites.PREVIEW' | translate }} &raquo;</a></td>
                         <td class="dashboard"><a ng-click="goToDashboard(site)">{{ 'dashboard.sites.DASHBOARD' | translate }} &raquo;</a></td>
-                        <td class="remove"><a ng-show="site.remove" ng-click="removeSiteSites(site)"><i class="fa fa-trash-o"></i></a></td>
+                        <td class="remove">
+                          <a ng-show="site.remove"
+                             ng-click="removeSiteSites(site)"
+                             tooltip-placement="bottom"
+                             uib-tooltip="{{'common.REMOVE_LABEL' | translate}}">
+                            <i class="fa fa-trash-o"></i>
+                          </a>
+                        </td>
                     </tr>
 
                 </tbody>
             </table>
 
-            <dir-pagination-controls class="ml10" on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
+            <dir-pagination-controls id="sites-pagination" class="ml10" on-page-change="pageChanged(newPageNumber)"></dir-pagination-controls>
         </div>
     </div>
+
+    <div ng-if="(!sites || !sites.length) && !createSites">
+        <p class="site-message">{{ 'dashboard.sites.NO_SITES_MESSAGE' | translate }}</p>
+    </div>
+
+  <div class="create-site-dialog-container"></div>
 
 </div>
 
@@ -48,15 +78,17 @@
 </div>
 
 <script type="text/ng-template" id="removeConfirmation.html">
-    <div class="modal-header">
-        <h3 class="modal-title">{{ 'common.CONFIRMATION' | translate }}</h3>
-    </div>
-    <div class="modal-body">
-        <p>{{ 'dashboard.sites.REMOVE_SITE_CONFIRMATION_MSG' | translate }} {{siteToRemove}} {{ 'common.INTERROGATION_SIGN' | translate }}</p>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">{{ 'common.YES' | translate }}</button>
-        <button class="btn btn-default" ng-click="cancel()">{{ 'common.NO' | translate }}</button>
+    <div id="remove-site">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ 'common.CONFIRMATION' | translate }}</h3>
+        </div>
+        <div class="modal-body">
+            <p>{{ 'dashboard.sites.REMOVE_SITE_CONFIRMATION_MSG' | translate }} {{siteToRemove}} {{ 'common.INTERROGATION_SIGN' | translate }}</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary yes" ng-disabled="confirmationSubmitDisabled" ng-click="ok()">{{ 'common.YES' | translate }}</button>
+            <button class="btn btn-default no" ng-click="cancel()">{{ 'common.NO' | translate }}</button>
+        </div>
     </div>
 </script>
 

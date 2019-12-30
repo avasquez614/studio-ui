@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 (function(){
 
     CStudioAuthoring.register('Env.ModuleMap', {
@@ -215,12 +232,18 @@
 
     Loader.addModule({
         type: 'js',
-        name:'viewcontroller-approve',
-        path: 'components/cstudio-view-controllers/approve.js?version=' + CStudioAuthoring.UIBuildIds,
+        name: 'publish-util',
+        path: 'components/cstudio-view-controllers/publish-util.js?version=' + CStudioAuthoring.UIBuildId
+    });
+
+    Loader.addModule({
+        type: 'js',
+        name: 'viewcontroller-approve',
+        path: 'components/cstudio-view-controllers/approve.js?version=' + CStudioAuthoring.UIBuildId,
         requires: [
             'viewcontroller-base',
+            'publish-util',
             'component-templateagent',
-            'template-approve',
             'jquery-datetimepicker',
             'jquery-momentjs'
         ]
@@ -228,7 +251,7 @@
 
     Loader.addModule({
         type: 'js',
-        name:'viewcontroller-dependencies',
+        name: 'viewcontroller-dependencies',
         path: 'components/cstudio-view-controllers/dependencies.js?version=' + CStudioAuthoring.UIBuildIds,
         requires: [
             'viewcontroller-base',
@@ -265,7 +288,7 @@
         type: 'js',
         name:'viewcontroller-requestpublish',
         path: 'components/cstudio-view-controllers/request-publish.js?version=' + CStudioAuthoring.UIBuildId,
-        requires: ['viewcontroller-base', 'jquery-datetimepicker', 'jquery-momentjs']
+        requires: ['viewcontroller-base', 'publish-util', 'jquery-datetimepicker', 'jquery-momentjs']
     });
 
     Loader.addModule({

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var YEvent = YAHOO.util.Event;
 
@@ -26,9 +43,9 @@ CStudioAuthoring.Dialogs.NewTemplate = CStudioAuthoring.Dialogs.NewTemplate || {
         this.dialog = this.createDialog(path);
 		this.dialog.show();
 		document.getElementById("cstudio-wcm-popup-div_h").style.display = "none";
-		
+
 	},
-	
+
 	/**
 	 * hide dialog
 	 */
@@ -70,11 +87,11 @@ CStudioAuthoring.Dialogs.NewTemplate = CStudioAuthoring.Dialogs.NewTemplate || {
 
                            '</div> ' +
                            '</div>';
-		
+
 		document.getElementById("upload-popup-inner").style.width = "350px";
 		document.getElementById("upload-popup-inner").style.height = "250px";
 
-		 var dialog = new YAHOO.widget.Dialog("cstudio-wcm-popup-div", 
+		 var dialog = new YAHOO.widget.Dialog("cstudio-wcm-popup-div",
 								{ width : "360px",
 								  height : "250px",
                                   effect:{
@@ -86,34 +103,36 @@ CStudioAuthoring.Dialogs.NewTemplate = CStudioAuthoring.Dialogs.NewTemplate || {
 								  modal:true,
 								  close:false,
 								  constraintoviewport : true,
-								  underlay:"none"							  							
-								});	
-								
+								  underlay:"none"
+								});
+
 		// Render the Dialog
 		dialog.render();
-		
+
 		var eventParams = {
 			self: this,
 			nameEl: document.getElementById('templateName'),
             path: path
 		},
 			me = this;
-		
+
 		YAHOO.util.Event.addListener("templateName", "keypress", this.limitInput, eventParams);
 
 		YAHOO.util.Event.addListener("createButton", "click", this.createClick, eventParams);
 
 		YAHOO.util.Event.addListener("createCancelButton", "click", this.popupCancelClick);
 
-		YAHOO.util.Event.on(newdiv, 'keyup', function (e) {
-			if (e.which === 27) {	// esc
-				me.popupCancelClick();
-			} else if(e.which === 13 || e.which === 10){
+		$("body").on("keyup", function(e) {
+			if(e.keyCode === 13 || e.keyCode === 10) {
 				me.createClick(e, eventParams);
+				$("body").off("keyup");
 			}
-		}, newdiv);
+            if (e.keyCode === 27) {	// esc
+				me.closeDialog();
+				$("body").off("keyup");
+			}
+        });
 
-		
 		return dialog;
 	},
 
@@ -124,15 +143,15 @@ CStudioAuthoring.Dialogs.NewTemplate = CStudioAuthoring.Dialogs.NewTemplate || {
 		params.nameEl.value = value;
 	},
 
-	/** 
-	 * create clicked 
+	/**
+	 * create clicked
 	 */
 	createClick: function(event, params) {
 		var _self = CStudioAuthoring.Dialogs.NewTemplate;
 		var name = params.nameEl.value;
 		var templatePath
         params.path ? templatePath = params.path : templatePath = "/templates/web";
-		
+
 		if(name.indexOf(".ftl") == -1) {
 			name = name + ".ftl";
 		}
@@ -148,31 +167,31 @@ CStudioAuthoring.Dialogs.NewTemplate = CStudioAuthoring.Dialogs.NewTemplate || {
 		var saveSvcCb = {
 			success: function() {
 				CStudioAuthoring.Dialogs.NewTemplate.closeDialog();
-				
+
 				CStudioAuthoring.Operations.openTemplateEditor
-					(templatePath+"/"+name, "default", { 
-						success: function() { 
+					(templatePath+"/"+name, "default", {
+						success: function() {
 							if(_self.cb.success){
                                 _self.cb.success(templatePath+"/"+name);
                             }else{
                                 _self.cb(templatePath+"/"+name);
                             }
-						}, 
+						},
 						failure: function() {
 						}
 					}, null, null);
 			},
 			failure: function() {
 			}
-		};	
-			
+		};
+
 		YAHOO.util.Connect.setDefaultPostHeader(false);
 		YAHOO.util.Connect.initHeader("Content-Type", "text/pain; charset=utf-8");
-		YAHOO.util.Connect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);
+		YAHOO.util.Connect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
 		YAHOO.util.Connect.asyncRequest('POST', CStudioAuthoring.Service.createServiceUri(writeServiceUrl), saveSvcCb, "");
- 
-	},		
-	
+
+	},
+
 	/**
 	 * event fired when the ok is pressed
 	 */

@@ -1,10 +1,27 @@
-CStudioForms.Datasources.ImgDesktopUpload = CStudioForms.Datasources.ImgDesktopUpload ||  
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+CStudioForms.Datasources.ImgDesktopUpload = CStudioForms.Datasources.ImgDesktopUpload ||
 function(id, form, properties, constraints)  {
    	this.id = id;
    	this.form = form;
    	this.properties = properties;
    	this.constraints = constraints;
-	
+
 	return this;
 }
 
@@ -13,7 +30,7 @@ YAHOO.extend(CStudioForms.Datasources.ImgDesktopUpload, CStudioForms.CStudioForm
     getLabel: function() {
         return CMgs.format(langBundle, "imageUploadedDesktop");
     },
-    
+
 	/**
 	 * action called when user clicks insert image
 	 */
@@ -22,35 +39,39 @@ YAHOO.extend(CStudioForms.Datasources.ImgDesktopUpload, CStudioForms.CStudioForm
 		var site = CStudioAuthoringContext.site;
 		var path = "/static-assets/images"; // default
 		var isUploadOverwrite = true;
-		
+
 		var CMgs = CStudioAuthoring.Messages;
 		var langBundle = CMgs.getBundle("contentTypes", CStudioAuthoringContext.lang);
-		
+
 		for(var i=0; i<this.properties.length; i++) {
 			if(this.properties[i].name == "repoPath") {
 				path = this.properties[i].value;
-			
+
 				path = this.processPathsForMacros(path);
 			}
 		}
-		
-		var callback = { 
+
+		var callback = {
 			success: function(imageData) {
+                var topWin = window.parent.CStudioAuthoring.ContextualNav.WcmRootFolder;
+                if(topWin.currentTextNode && topWin.myTreeAssets){
+                    topWin.refreshNodes(topWin.currentTextNode,false, false, topWin.myTreeAssets, null, true);
+                }
 				var relativeUrl = path.endsWith("/") ? path + imageData.fileName : path + "/" + imageData.fileName;
 				var url = this.context.createPreviewUrl(relativeUrl);
 				imageData.previewUrl = url + "?" + new Date().getTime();
 				imageData.relativeUrl = relativeUrl;
 
 				insertCb.success(imageData);
-			}, 
-			failure: function() {
-				insertCb.failure("An error occurred while uploading the image."); 
 			},
-			context: this 
+			failure: function() {
+				insertCb.failure("An error occurred while uploading the image.");
+			},
+			context: this
 		};
 
 		if("" != path){
-			CStudioAuthoring.Operations.uploadAsset(site, path, isUploadOverwrite, callback);
+			CStudioAuthoring.Operations.uploadAsset(site, path, isUploadOverwrite, callback, ["image/*"]);
 		}else{
 			var errorString = CMgs.format(langBundle, "noPathSetError");
 			errorString = errorString.replace("{DATASOURCENAME}", "<b>" + this.getName() + "</b>");
@@ -66,29 +87,29 @@ YAHOO.extend(CStudioForms.Datasources.ImgDesktopUpload, CStudioForms.CStudioForm
 			);
 		}
 	},
-	
+
 	/**
 	 * create preview URL
 	 */
 	createPreviewUrl: function(imagePath) {
 		return CStudioAuthoringContext.previewAppBaseUri + imagePath + "";
 	},
-	
+
 	/**
 	 * clean up preview URL so that URL is canonical
 	 */
 	cleanPreviewUrl: function(previewUrl) {
 		var url = previewUrl;
-		
+
 		if(previewUrl.indexOf(CStudioAuthoringContext.previewAppBaseUri) != -1) {
 			url =  previewUrl.substring(CStudioAuthoringContext.previewAppBaseUri.length);
-			
+
 			if(url.substring(0,1) != "/") {
 				url = "/" + url;
 			}
 		}
-		
-		return url;	
+
+		return url;
 	},
 
 	deleteImage : function(path) {
@@ -102,7 +123,7 @@ YAHOO.extend(CStudioForms.Datasources.ImgDesktopUpload, CStudioForms.CStudioForm
 	getName: function() {
 		return "img-desktop-upload";
 	},
-	
+
 	getSupportedProperties: function() {
 		return [
 			{ label: CMgs.format(langBundle, "repositoryPath"), name: "repoPath", type: "string" }

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * Preview Tools
  */
@@ -69,7 +86,7 @@ CStudioAuthoring.ContextualNav.PreviewToolsMod = CStudioAuthoring.ContextualNav.
 				},
 				
 				render: function() {
-					var el, containerEl, iconEl, iconLabel, ptoOn;
+					var el, containerEl, iconEl, ptoOn;
 
 					var CMgs = CStudioAuthoring.Messages;
 					var previewLangBundle = CMgs.getBundle("forms", CStudioAuthoringContext.lang);
@@ -83,6 +100,7 @@ CStudioAuthoring.ContextualNav.PreviewToolsMod = CStudioAuthoring.ContextualNav.
                     iconEl.id = "acn-preview-tools-image";
 
                     YDom.addClass(iconEl, "nav-icon fa fa-wrench f18");
+                    $(iconEl).attr('data-title', 'previewToolsTitle');
                     ptoOn = !!(sessionStorage.getItem('pto-on'));   // cast string value to a boolean
 
                     if(ptoOn){
@@ -91,12 +109,7 @@ CStudioAuthoring.ContextualNav.PreviewToolsMod = CStudioAuthoring.ContextualNav.
                         YDom.addClass(iconEl, "icon-default");
                     }
 
-                    iconLabel = document.createElement("span");
-                    YDom.addClass(iconLabel, "nav-label");
-                    iconLabel.innerHTML = CMgs.format(previewLangBundle, "previewToolsTitle");;
-
 					containerEl.appendChild(iconEl);
-                    containerEl.appendChild(iconLabel);
 					el.appendChild(containerEl);
 
                     var cstopic = crafter.studio.preview.cstopic;

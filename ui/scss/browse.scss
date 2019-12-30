@@ -1,12 +1,31 @@
+/*!
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@import 'util/util';
+
 body {
 	font-family: 'Open Sans', sans-serif;
     background-color: #F0F0F0;
     margin: 0;
    	padding-top: 20px;
-   	box-sizing: border-box;	
+   	box-sizing: border-box;
 
 	*{
-	    box-sizing: border-box;	 
+	    box-sizing: border-box;
 	}
 
 	.bold {
@@ -113,12 +132,12 @@ body {
 		}
 		#cstudio-wcm-search-result, #cstudio-wcm-browse-result {
 			width: calc(100% - 400px)!important;
-			border-radius: 5px; 
+			border-radius: 5px;
 			padding-left: 20px;
 			padding-top: 20px;
 			overflow:hidden;
 
-			.results{									
+			.results{
 			    height: calc(100vh - 155px);
 			    overflow-y: scroll;
 			    // margin-right: -15px;
@@ -148,14 +167,14 @@ body {
                               word-break: break-word;
                             }
 
-				   	 		.browse-icon {		
+				   	 		.browse-icon {
 			   	 			    margin-right: 20px;
-				   	 		}	
+				   	 		}
 
 				   	 		.cstudio-search-component-title-nopreview{
 								font-size: 1.38em;
 								color: #808080 !important;
-								cursor: auto !important; 
+								cursor: auto !important;
 								display: inline-block;
 				   	 		}
 
@@ -206,7 +225,7 @@ body {
 						    margin-right: 10px;
 					  	}
 
-					  	
+
 					}
 
 				  	.no-preview{
@@ -243,7 +262,7 @@ body {
 
 	}
 
-	.cstudio-browse-image-popup-overlay{
+	.cstudio-image-popup-overlay{
 		position: fixed;
 		display: none;
 		top: 0px;
@@ -255,28 +274,31 @@ body {
 		background: rgba(0, 0, 0, 0.6);
 		text-align: center;
 
-		#cstudio-browse-image-pop-up {
+		.cstudio-image-pop-up {
 			display: inline-block;
 			box-sizing: content-box;
-    		background-color: #928f8f;
+            background: #f2f2f2;
 			border-radius: 6px;
 			padding: 5px 10px 10px;
+            margin-top: 10px;
 
 			&> div {
 				text-align: right;
-			    input.close {
-			    	float: none;
-				    border: none;
-				    background: transparent;
-				    box-shadow: none;
-			        font-size: 20px;
-				    padding: 0;
-				    line-height: 12px;
-					padding-bottom: 7px;
-	    			margin-bottom: 5px;
-	    			opacity: 1;
-	    			margin-right: -5px;
-    			    border-radius: 0;
+			    .close {
+                  float: none;
+                  border: none;
+                  background: transparent;
+                  box-shadow: none;
+                  font-size: 20px;
+                  font-weight: normal;
+                  padding: 0;
+                  line-height: 12px;
+                  padding-bottom: 7px;
+                  margin-right: -4px;
+                  margin-top: 1px;
+                  opacity: 1;
+                  border-radius: 0;
+                  color: #5d5d5d;
 				}
 			}
 
@@ -298,7 +320,7 @@ body {
 		  	height: 100%;
 		}
 	}
-	
+
 
 	#cstudio-command-controls {
 	    position: fixed;
@@ -335,8 +357,8 @@ body {
     border-radius:3px 3px 0px 0px;
     background:#8eafc5;
     font-size:16px;
-    font-weight:600;
     text-decoration: none;
+    font-weight:600;
     color:#4c4c4c;
     transition:all linear 0.15s;
   }
@@ -367,7 +389,40 @@ body {
     display:block;
   }
 
+  .yui-dialog {
+	.contentTypePopupHeader {
+		font-size: 21.6px;
+	}
 
+	#asset_upload_form {
+		.contentTypeOuter {
+			cursor: auto;
+			color: #000000;
+			direction: ltr;
+			font: normal normal normal 12px/normal;
+			font-size-adjust: none;
+			font-stretch: normal;
+			letter-spacing: normal;
+			line-height: normal;
+			text-align: left;
+			text-indent: 0;
+			text-justify: auto;
+			text-outline: none;
+			text-shadow: none;
+			text-transform: none;
+			white-space: normal;
+			word-spacing: normal;
+			word-break: normal;
+			word-wrap: normal;
+			font-family: "Open Sans", sans-serif;
+			font-size: 12px;
+
+			table tr td {
+				padding: 0;
+			}
+		}
+	}
+  }
 
 	/* Scrollbar styling - webkit */
 
@@ -378,21 +433,25 @@ body {
 	::-webkit-scrollbar-thumb:hover {
 	    background: #808080;
 	}
-	 
+
 	/* Track */
 	::-webkit-scrollbar-track {
 	    -webkit-border-radius: 10px;
 	    border-radius: 10px;
 	}
-	 
+
 	/* Handle */
 	::-webkit-scrollbar-thumb {
 	    -webkit-border-radius: 10px;
 	    border-radius: 10px;
-	    background: rgba(128,128,128,0.7); 
+	    background: rgba(128,128,128,0.7);
 	}
 	::-webkit-scrollbar-thumb:window-inactive {
-		background: rgba(128,128,128,0.4); 
+		background: rgba(128,128,128,0.4);
 	}
 
-}	
+}
+
+.cstudio__loading-bar {
+  @include cstudioLoadingBar(3px, #2275d7);
+}

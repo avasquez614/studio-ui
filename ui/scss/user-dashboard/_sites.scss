@@ -1,6 +1,30 @@
+/*!
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 
 .sites-view {
-
+  .site-message{
+    position: relative;
+    top: 80px;
+    width: 100%;
+    text-align: center;
+    color: #615f5f;
+    font-weight: 600;
+  }
 }
 
 .screen-title {
@@ -42,6 +66,10 @@
     width: 92%;
   }
 
+}
+
+.green .modal-body .notificationBody .icon{
+  color: $success-green;
 }
 
 .createSitesBtn{
@@ -114,7 +142,6 @@
   .row {
     margin-bottom: 20px;
   }
-
 }
 
 .create-site-view {
@@ -164,6 +191,10 @@
 .validationComment{
   color: gray;
   font-size: 9px;
+}
+
+.submission-comment{
+  height: 65px;
 }
 
 .word-wrap{

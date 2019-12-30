@@ -319,6 +319,8 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
             var uploadFile = function(file, cfg) {
                 var reader = new FileReader ();
+                var CHUNK_SIZE = 1024;
+                var offset = 0
 
                 if(cfg.path) cfg.target = queryStringUrlReplacement(cfg.target, "path", cfg.path);
 
@@ -382,7 +384,12 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                 }) (file);
 
                 // Read in the image file as a data url.
-                reader.readAsDataURL(file);
+                if( file.type.indexOf("image") !== -1){
+                    reader.readAsDataURL(file);
+                }else{
+                    var slice = file.slice(offset, offset + CHUNK_SIZE);
+                    reader.readAsDataURL(slice);
+                }
             };
 
             var toArray = function(list) {
@@ -404,6 +411,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                     cfgSubFolder.path = cfg.path + "/" + item.name;
 
                     var serviceUri = CStudioAuthoring.Service.createServiceUri("/api/1/services/api/1/content/create-folder.json?site=" + cfg.site + "&path=" + cfg.path + "&name=" + item.name);
+                    serviceUri += "&" + CStudioAuthoringContext.xsrfParameterName + "=" + CrafterCMSNext.util.auth.getRequestForgeryToken();
 
                     if(!document.getElementById("folder" + cfg.path + '/' + item.name)){
                         display.insertAdjacentHTML('beforeEnd',
@@ -426,7 +434,7 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         }
                     };
 
-                    YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);
+                    YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
                     YConnect.asyncRequest('POST', serviceUri, serviceCallback);
                 }
             }
@@ -434,6 +442,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
             var event = e;
 
             var items = event.dataTransfer.items;
+
+            if( !items ){
+                items = event.dataTransfer.files;
+            }
             for (var i=0; i<items.length; i++) {
                 try{    //chrome feature to upload folders
                     // webkitGetAsEntry for chrome
@@ -442,11 +454,10 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
                         traverseFileTree(item, cfg);
                     }
                 }catch(e){      //other browsers
-                    var file = files[x];
+                    var file = items[i];
                     uploadFile(file, cfg);
                 }
             }
-
 
             /////////////////////////////////////
 
@@ -605,12 +616,12 @@ if (typeof HTMLElement != "undefined" && !HTMLElement.prototype.insertAdjacentEl
 
         auxFormData.path = cfg.path ? cfg.path : auxFormData.path;
 
-        fd.append(cfg.uploadPostKey, file);
         if (auxFormData) for (var key in auxFormData) {
             fd.append(key, auxFormData[key]);
         }
+        fd.append(cfg.uploadPostKey, file);
 
-        xhr.open("POST", cfg.target);
+        xhr.open("POST", cfg.target + "&" + CStudioAuthoringContext.xsrfParameterName + "=" + CrafterCMSNext.util.auth.getRequestForgeryToken());
         xhr.send(fd);
 
         document.querySelector(".bulk-upload .buttons-container .cancel").style.display = "none";

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var contextPath = location.protocol + "//" + location.hostname + ":" + location.port;
 
@@ -89,11 +106,9 @@ CStudioAuthoringWidgets.GoLiveQueueDashboard = CStudioAuthoringWidgets.GoLiveQue
                     YDom.get('sort-type-' + _self.widgetId).innerHTML = "true";
                 }
 
-                var sortBy = _self.currentSortBy ? _self.currentSortBy : _self.defaultSortBy;
-                WcmDashboardWidgetCommon.loadTableData(
-                    sortBy,
-                    YDom.get(_self.widgetId),
-                    _self.widgetId);
+                if (typeof WcmDashboardWidgetCommon != "undefined") {
+                    WcmDashboardWidgetCommon.refreshAllDashboards();
+                }
             };
         };
 
@@ -107,13 +122,14 @@ CStudioAuthoringWidgets.GoLiveQueueDashboard = CStudioAuthoringWidgets.GoLiveQue
 
             var header = [
                 Common.getSimpleRow("checkAll", widgetId, '<input title="Select all" class="dashlet-item-check" id="' + widgetId + 'CheckAll" name="check-all" type="checkbox"/>', "minimize"),
-                Common.getSortableRow("internalName", widgetId, CMgs.format(langBundle, "dashletGoLiveColPageName"), "minimize"),
-                Common.getSimpleRow("edit", widgetId, "View", "minimize"),
+                Common.getSimpleRow("internalName", widgetId, CMgs.format(langBundle, "dashletGoLiveColPageName"), "minimize"),
+                Common.getSimpleRow("view", widgetId, CMgs.format(langBundle, "dashletGoLiveColView"), "minimize"),
                 Common.getSimpleRow("edit", widgetId, CMgs.format(langBundle, "dashletGoLiveColEdit"), "minimize"),
                 Common.getSortableRow("browserUri", widgetId, CMgs.format(langBundle, "dashletGoLiveColURL"), "maximize"),
                 '<th id="fullUri" class="width0"></th>',
-                Common.getSimpleRow("scheduledDate", widgetId, CMgs.format(langBundle, "dashletGoLiveColPublishDate"), ""),
-                Common.getSortableRow("userLastName", widgetId, CMgs.format(langBundle, "dashletGoLiveColLastEditedBy"), "alignRight minimize"),
+                Common.getSimpleRow("server", widgetId, CMgs.format(langBundle, "dashletGoLiveColEnvironment"),"maximize"),
+                Common.getSortableRow("scheduledDate", widgetId, CMgs.format(langBundle, "dashletGoLiveColPublishDate"), "minimize"),
+                Common.getSimpleRow("userLastName", widgetId, CMgs.format(langBundle, "dashletGoLiveColLastEditedBy"), "alignRight minimize"),
                 Common.getSortableRow("eventDate", widgetId, CMgs.format(langBundle, "dashletGoLiveColLastEditedDate"), "ttThColLast alignRight minimize")
             ].join('');
 
@@ -132,105 +148,112 @@ CStudioAuthoringWidgets.GoLiveQueueDashboard = CStudioAuthoringWidgets.GoLiveQue
          */
         this.renderLineItem = function(item, isFirst, count, depth) {
 
-            var html = [],
+            if(!item.folder){
+
+                var html = [],
                 name = item.internalName,
                 editLinkId;
 
-            //reducing max character length to support 1024 screen resolution
-            var removeCharCount = ((window.innerWidth <= 1024)?5:0);
-            var displayName = WcmDashboardWidgetCommon.getFormattedString(name, (80 - removeCharCount), item.newFile);
+                //reducing max character length to support 1024 screen resolution
+                var removeCharCount = ((window.innerWidth <= 1024)?5:0);
+                var displayName = WcmDashboardWidgetCommon.getFormattedString(name, (80 - removeCharCount), item.newFile);
 
-            if (isFirst) {
+                if (isFirst) {
 
-                html.push('<td colspan="4">');
+                    html.push('<td colspan="4">');
 
-                if (item.numOfChildren > 0) {
-                    var parentClass = ['wcm-table-parent-', name, '-', count].join("");
+                    if (item.numOfChildren > 0) {
+                        var parentClass = ['wcm-table-parent-', name, '-', count].join("");
+                        html = html.concat([
+                            '<span id="', parentClass, '"',
+                            'class="', item.children.length ? 'ttClose parent-div-widget' : 'ttOpen parent-div-widget', '"',
+                            'onclick="WcmDashboardWidgetCommon.toggleLineItem(\'' + parentClass + '\');" >',
+                            '</span>'
+                        ]);
+                    }
+
                     html = html.concat([
-                        '<span id="', parentClass, '"',
-                        'class="', item.children.length ? 'ttClose parent-div-widget' : 'ttOpen parent-div-widget', '"',
-                        'onclick="WcmDashboardWidgetCommon.toggleLineItem(\'' + parentClass + '\');" >',
-                        '</span>'
+                        '<span class="wcm-widget-margin-align" title="', name, '">',
+                        displayName, ' (', item.numOfChildren, ')',
+                        '</span>',
+                        '</td>',
+                        '<td colspan="3">&nbsp;</td>'
                     ]);
+
+                } else {
+
+                    var browserUri = CStudioAuthoring.Operations.getPreviewUrl(item, false, true),
+                        displayBrowserUri = WcmDashboardWidgetCommon.getFormattedString(browserUri, (50 - removeCharCount)),
+                        uri = item.uri,
+                        fmt = CStudioAuthoring.Utils.formatDateFromString,
+                        environment = item.submittedToEnvironment ? item.submittedToEnvironment : "";
+
+                    editLinkId = 'editLink_' + this.widgetId + '_' + WcmDashboardWidgetCommon.encodePathToNumbers(item.uri);
+                    viewLinkId = 'previewLink_' + this.widgetId + '_' + WcmDashboardWidgetCommon.encodePathToNumbers(item.uri);
+
+                    var ttSpanId =  "tt_" + this.widgetId + "_" + item.uri + "_" + (this.tooltipLabels.length + 1);
+                    var itemTitle = CStudioAuthoring.Utils.getTooltipContent(item);
+                    this.tooltipLabels.push(ttSpanId);
+
+                    if (item.component && item.internalName == "crafter-level-descriptor.level.xml") {
+                        browserUri = "";
+                        displayBrowserUri = "";
+                    }
+
+                    var itemIconStatus = CStudioAuthoring.Utils.getIconFWClasses(item);
+                    itemIconStatus += ((item.disabled && !item.previewable) ? ' non-previewable-disabled' : '');
+
+                    // this API will replace double quotes with ASCII character
+                    // to resolve page display issue
+                    displayName = CStudioAuthoring.Utils.replaceWithASCIICharacter(displayName);
+
+                    WcmDashboardWidgetCommon.insertEditLink(item, editLinkId);
+                    WcmDashboardWidgetCommon.insertViewLink(item, viewLinkId);
+
+                    var currentDashboard = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-selected"),
+                        currentCheckItem = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked") ?
+                            JSON.parse(CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked"))[0] : null,
+                        currentBrowserUri = browserUri !== "" ? browserUri : "/";
+
+                    html = html.concat([
+                        '<td colspan=2>',
+                        '<div class="dashlet-ident">',
+                        '<input type="checkbox" class="dashlet-item-check" id="', uri, '"',
+                        ((this.widgetId == currentDashboard && (currentCheckItem && CStudioAuthoring.SelectedContent.getSelectedContent().length>0
+                            && item.internalName.trim() == CStudioAuthoring.SelectedContent.getSelectedContent()[0].internalName.trim())) ? ' checked' : ''),
+                        ((item.deleted || item.inFlight) ? ' disabled' : ''), '  />',
+                        // '<span class="', itemIconStatus, (item.disabled == true ? ' disabled' : ''), '" id="' + ttSpanId + '" title="' + itemTitle + '">',
+                        CStudioAuthoring.Utils.getContentItemIcon(item).outerHTML,
+                        '<a class="anchorRow" ', (item.previewable == true) ? 'href="/studio/preview/#/?page='+currentBrowserUri+'&site='+CStudioAuthoringContext.site+'"' : '', ' class="itemNameCol "', (item.previewable == true) ? "previewLink" : "non-previewable-link",
+                        (item.disabled == true ? ' dashboard-item disabled' : '') , '">',
+                        displayName,
+                        '</a>',
+                        '</span>',
+                        '</div>', depth ?
+                            '</div>' : '',
+                        '</div>',
+                        '</td>',
+                        '<td id="' + viewLinkId + '"></td>',
+                        '<td id="' + editLinkId + '"></td>',
+                        "<td class='urlCol' title='",browserUri,"'>", displayBrowserUri, "</td>",
+                        "<td title='fullUri' class='width0'>", uri, "</td>",
+                        "<td title='server'>", environment, "</td>",
+                        '<td class="">', item.scheduled ? CStudioAuthoring.Utils.formatDateFromUTC(item.scheduledDate, studioTimeZone, 'tooltipformat') : '', '</td>',
+                        "<td class='alignRight'>", WcmDashboardWidgetCommon.getDisplayName(item), "</td>",
+                        "<td class='alignRight ttThColLast'>", CStudioAuthoring.Utils.formatDateFromUTC(item.eventDate, studioTimeZone), "</td>"
+                    ]);
+
                 }
 
-                html = html.concat([
-                    '<span class="wcm-widget-margin-align" title="', name, '">',
-                    displayName, ' (', item.numOfChildren, ')',
-                    '</span>',
-                    '</td>',
-                    '<td colspan="3">&nbsp;</td>'
-                ]);
-
-            } else {
-
-                var browserUri = CStudioAuthoring.Operations.getPreviewUrl(item, false, true),
-                    displayBrowserUri = WcmDashboardWidgetCommon.getFormattedString(browserUri, (50 - removeCharCount)),
-                    uri = item.uri,
-                    fmt = CStudioAuthoring.Utils.formatDateFromString;
-
-                editLinkId = 'editLink_' + this.widgetId + '_' + WcmDashboardWidgetCommon.encodePathToNumbers(item.uri);
-                viewLinkId = 'previewLink_' + this.widgetId + '_' + WcmDashboardWidgetCommon.encodePathToNumbers(item.uri);
-
-                var ttSpanId =  "tt_" + this.widgetId + "_" + item.uri + "_" + (this.tooltipLabels.length + 1);
-                var itemTitle = CStudioAuthoring.Utils.getTooltipContent(item);
-                this.tooltipLabels.push(ttSpanId);
-
-                if (item.component && item.internalName == "crafter-level-descriptor.level.xml") {
-                    browserUri = "";
-                    displayBrowserUri = "";
+                if(this.widgetId == currentDashboard && (currentCheckItem && CStudioAuthoring.SelectedContent.getSelectedContent().length>0
+                    && item.internalName.trim() == CStudioAuthoring.SelectedContent.getSelectedContent()[0].internalName.trim())){
+                    CStudioAuthoring.Utils.Cookies.eraseCookie("dashboard-checked");
                 }
 
-                var itemIconStatus = CStudioAuthoring.Utils.getIconFWClasses(item);
-                itemIconStatus += ((item.disabled && !item.previewable) ? ' non-previewable-disabled' : '');
-
-                // this API will replace double quotes with ASCII character
-                // to resolve page display issue
-                displayName = CStudioAuthoring.Utils.replaceWithASCIICharacter(displayName);
-
-                WcmDashboardWidgetCommon.insertEditLink(item, editLinkId);
-                WcmDashboardWidgetCommon.insertViewLink(item, viewLinkId);
-
-                var currentDashboard = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-selected"),
-                    currentCheckItem = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked") ?
-                        JSON.parse(CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked"))[0] : null,
-                    currentBrowserUri = browserUri !== "" ? browserUri : "/";
-
-                html = html.concat([
-                    '<td colspan=2>',
-                    '<div class="dashlet-ident">',
-                    '<input type="checkbox" class="dashlet-item-check" id="', uri, '"',
-                    ((this.widgetId == currentDashboard && (currentCheckItem && CStudioAuthoring.SelectedContent.getSelectedContent().length>0
-                        && item.internalName.trim() == CStudioAuthoring.SelectedContent.getSelectedContent()[0].internalName.trim())) ? ' checked' : ''),
-                    ((item.deleted || item.inFlight) ? ' disabled' : ''), '  />',
-                    // '<span class="', itemIconStatus, (item.disabled == true ? ' disabled' : ''), '" id="' + ttSpanId + '" title="' + itemTitle + '">',
-                    CStudioAuthoring.Utils.getContentItemIcon(item).outerHTML,
-                    '<a class="anchorRow" ', (item.previewable == true) ? 'href="/studio/preview/#/?page='+currentBrowserUri+'&site='+CStudioAuthoringContext.site+'"' : '', ' class="itemNameCol "', (item.previewable == true) ? "previewLink" : "non-previewable-link",
-                    (item.disabled == true ? ' dashboard-item disabled' : '') , '">',
-                    displayName,
-                    '</a>',
-                    '</span>',
-                    '</div>', depth ?
-                        '</div>' : '',
-                    '</div>',
-                    '</td>',
-                    '<td id="' + viewLinkId + '"></td>',
-                    '<td id="' + editLinkId + '"></td>',
-                    "<td class='urlCol' title='",browserUri,"'>", displayBrowserUri, "</td>",
-                    "<td title='fullUri' class='width0'>", uri, "</td>",
-                    '<td class="">', item.scheduled ? CStudioAuthoring.Utils.formatDateFromUTC(item.scheduledDate, studioTimeZone, 'tooltipformat') : '', '</td>',
-                    "<td class='alignRight'>", WcmDashboardWidgetCommon.getDisplayName(item), "</td>",
-                    "<td class='alignRight ttThColLast'>", CStudioAuthoring.Utils.formatDateFromUTC(item.eventDate, studioTimeZone), "</td>"
-                ]);
+                return html.join('');
 
             }
 
-            if(this.widgetId == currentDashboard && (currentCheckItem && CStudioAuthoring.SelectedContent.getSelectedContent().length>0
-                && item.internalName.trim() == CStudioAuthoring.SelectedContent.getSelectedContent()[0].internalName.trim())){
-                CStudioAuthoring.Utils.Cookies.eraseCookie("dashboard-checked");
-            }
-
-            return html.join('');
         };
 
         /**

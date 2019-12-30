@@ -1,7 +1,24 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioForms.Controls.RTE.ImageInsert = CStudioForms.Controls.RTE.ImageInsert || {
                 /**
                  * Initializes the plugin
-                 * @param {tinymce.Editor} ed Editor instance that the plugin is initialized in.
+                 * @param {tinymce2.Editor} ed Editor instance that the plugin is initialized in.
                  * @param {string} url Absolute URL to where the plugin is located.
                  */
                 init : function(ed, url) {
@@ -32,35 +49,42 @@ CStudioForms.Controls.RTE.ImageInsert = CStudioForms.Controls.RTE.ImageInsert ||
 
 						ed.contextControl.form.registerBeforeSaveCallback(beforeSaveCb);
 
-                        // Register the command so that it can be invoked by using tinyMCE.activeEditor.execCommand('mceExample');
+                        // Register the command so that it can be invoked by using tinymce2.activeEditor.execCommand('mceExample');
                         ed.addCommand('mceInsertManagedImage', function(param, datasource) {
                             var CMgs = CStudioAuthoring.Messages;
                             var langBundle = CMgs.getBundle("forms", CStudioAuthoringContext.lang);
-                            var actualCaretPositionBookmark = ed.selection.getBookmark();
+
                         	if(datasource) {
                         		if(datasource.insertImageAction) {
 	                        		datasource.insertImageAction({
 	                        			success: function(imageData) {
-                                            var cleanUrl = imageData.previewUrl.replace(/^(.+?\.(png|jpe?g)).*$/i, '$1');   //remove timestamp
+                                            var cleanUrl = imageData.relativeUrl.replace(/^(.+?\.(png|jpe?g)).*$/i, '$1');   //remove timestamp
+                                            var actualCaretPositionBookmark = { id: ed.id };
 
                                             ed.selection.moveToBookmark(actualCaretPositionBookmark);
 
-                                            CStudioAuthoring.Service.contentExists(imageData.relativeUrl, {
-                                                exists: function(result) {
-                                                    if(result) {
-                                                        ed.execCommand('mceInsertContent', true, '<img src="' + cleanUrl + '" />');
-                                                        ed.contextControl.save();
-                                                    }else {
-                                                        setTimeout(function(){
+                                            if(!(cleanUrl.indexOf("?crafterCMIS=true") !== -1 || cleanUrl.indexOf('http')  !== -1 || cleanUrl.indexOf('remote-assets')  !== -1)){
+                                                CStudioAuthoring.Service.contentExists(imageData.relativeUrl, {
+                                                    exists: function(result) {
+                                                        if(result) {
                                                             ed.execCommand('mceInsertContent', true, '<img src="' + cleanUrl + '" />');
                                                             ed.contextControl.save();
-                                                        },500);
+                                                        }else {
+                                                            setTimeout(function(){
+                                                                ed.execCommand('mceInsertContent', true, '<img src="' + cleanUrl + '" />');
+                                                                ed.contextControl.save();
+                                                            },500);
+                                                        }
+                                                    },
+                                                    failure: function(message) {
+                                                        console.log(message);
                                                     }
-                                                },
-                                                failure: function(message) {
-                                                    console.log(message);
-                                                }
-                                            });
+                                                });
+                                            }else{
+                                                ed.execCommand('mceInsertContent', true, '<img src="' + cleanUrl + '" />');
+                                                ed.contextControl.save();
+                                            }
+
 
 	                        			},
 	                        			failure: function(message) {
@@ -145,7 +169,7 @@ CStudioForms.Controls.RTE.ImageInsert = CStudioForms.Controls.RTE.ImageInsert ||
                                     this.add({
                                         title: el.title,
                                         onclick: function() {
-                                            tinyMCE.activeEditor.execCommand('mceInsertManagedImage', false, mapDatasource);
+                                            tinymce2.activeEditor.execCommand('mceInsertManagedImage', false, mapDatasource);
                                         }
                                     });
                                 }
@@ -177,9 +201,9 @@ CStudioForms.Controls.RTE.ImageInsert = CStudioForms.Controls.RTE.ImageInsert ||
 
 }
 
-tinymce.create('tinymce.plugins.CStudioManagedImagePlugin', CStudioForms.Controls.RTE.ImageInsert);
+tinymce2.create('tinymce2.plugins.CStudioManagedImagePlugin', CStudioForms.Controls.RTE.ImageInsert);
 
 // Register plugin with a short name
-tinymce.PluginManager.add('insertimage', tinymce.plugins.CStudioManagedImagePlugin);
+tinymce2.PluginManager.add('insertimage', tinymce2.plugins.CStudioManagedImagePlugin);
 
 CStudioAuthoring.Module.moduleLoaded("cstudio-forms-controls-rte-insert-image", CStudioForms.Controls.RTE.ImageInsert);

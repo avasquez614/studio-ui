@@ -1,4 +1,21 @@
 
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioForms.Controls.RTEManager = CStudioForms.Controls.RTEManager || {
 	cachedConfig: new Array(),
 	queuedConfigCallbacks: new Array(),
@@ -13,12 +30,12 @@ CStudioForms.Controls.RTEManager = CStudioForms.Controls.RTEManager || {
 	/**
 	 * get cached configuration
 	 */
-	getRteConfiguration: function(setupId, context, callback) {
+	getRteConfiguration: function(setupId, context, callback, configUrl) {
 		var style = (setupId==null) ? "generic" : setupId;
-		var cacheKey = "all";
-		
+		var configPath = configUrl ? configUrl : '/form-control-config/rte/rte-setup.xml';
+		var cacheKey = configPath;
 		var cachedResponse = this.cachedConfig[cacheKey];
-		
+
 		if(!cachedResponse) {
 			
 			if(!this.inProcessCacheReqs[cacheKey]) {
@@ -85,7 +102,7 @@ CStudioForms.Controls.RTEManager = CStudioForms.Controls.RTEManager || {
 			
 				CStudioAuthoring.Service.lookupConfigurtion(
 					CStudioAuthoringContext.site, 
-					"/form-control-config/rte/rte-setup.xml",
+					configPath,
 					cacheCb); 
 			}
 			else {

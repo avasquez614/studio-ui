@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 // YConnect.setDefaultPostHeader(false);
 //                YConnect.initHeader("Content-Type", "application/xml; charset=utf-8");
@@ -52,9 +69,9 @@ CStudioAuthoring.Dialogs.LoginDialog = CStudioAuthoring.Dialogs.LoginDialog || {
         var CMgs = CStudioAuthoring.Messages;
         var previewLangBundle = CMgs.getBundle("previewTools", CStudioAuthoringContext.lang);
 
-        YDom.removeClass("cstudio-wcm-popup-div", "yui-pe-content");
+        YDom.removeClass("cstudio-wcm-popup-div-login", "yui-pe-content");
 
-        var newdiv = YDom.get("cstudio-wcm-popup-div");
+        var newdiv = YDom.get("cstudio-wcm-popup-div-login");
         if (newdiv == undefined) {
             newdiv = document.createElement("div");
             document.body.appendChild(newdiv);
@@ -64,7 +81,7 @@ CStudioAuthoring.Dialogs.LoginDialog = CStudioAuthoring.Dialogs.LoginDialog || {
             location = "/studio/#/login";
         }
 
-        var divIdName = "cstudio-wcm-popup-div";
+        var divIdName = "cstudio-wcm-popup-div-login";
         newdiv.setAttribute("id",divIdName);
         newdiv.className= "yui-pe-content";
         newdiv.innerHTML = '<div class="contentTypePopupInner" id="login-popup-inner">' +
@@ -100,7 +117,7 @@ CStudioAuthoring.Dialogs.LoginDialog = CStudioAuthoring.Dialogs.LoginDialog || {
         document.getElementById("login-popup-inner").style.height = "180px";
 
         // Instantiate the Dialog
-        login_dialog = new YAHOO.widget.Dialog("cstudio-wcm-popup-div",
+        login_dialog = new YAHOO.widget.Dialog("cstudio-wcm-popup-div-login",
             {   width : "360px",
                 height : "388px",
                 effect:{
@@ -118,28 +135,21 @@ CStudioAuthoring.Dialogs.LoginDialog = CStudioAuthoring.Dialogs.LoginDialog || {
 
         // Render the Dialog
         login_dialog.render();
+        YDom.addClass(newdiv.parentNode,"login-dialog");
 
         var eventParams = {
             self: this
         };
 
-
-        CStudioAuthoring.Service.lookupSiteLogo(CStudioAuthoringContext.site, {
-            success: function (response) {
-                if(response){
-                    YDom.get('crafterLogo').src = '/studio/api/1/services/api/1/server/get-ui-resource-override.json?resource=logo.jpg';
-                }else{
-                    YDom.get('crafterLogo').src = '/studio/static-assets/images/crafter_studio_360.png';
-                }
-            },
-            failure: function() {
-                YDom.get('crafterLogo').src = '/studio/static-assets/images/crafter_studio_360.png';
-            }
-        });
+        YDom.get('crafterLogo').src = '/studio/static-assets/images/logo.svg';
 
        YAHOO.util.Event.addListener("loginButton", "click", this.loginPopupSubmit, eventParams);
        YAHOO.util.Event.addListener("loginCancelButton", "click", authRedirect);
 
+       setTimeout(function () {
+         var el = YAHOO.util.Selector.query('body > .mask:first-child');
+         YDom.addClass(el, "login-dialog-mask");
+       }, 100);
 
         return login_dialog;
     },
@@ -162,7 +172,7 @@ CStudioAuthoring.Dialogs.LoginDialog = CStudioAuthoring.Dialogs.LoginDialog || {
                     args.self.cb.success();
                 }else{
                     var loginError = document.getElementById("loginError");
-                    var cstudioWcmPopup = document.getElementById("cstudio-wcm-popup-div");
+                    var cstudioWcmPopup = document.getElementById("cstudio-wcm-popup-div-login");
                     loginError.innerHTML = response.message;
                     if(loginError.classList.contains("hidden")){
                         loginError.classList.remove("hidden");
@@ -173,7 +183,7 @@ CStudioAuthoring.Dialogs.LoginDialog = CStudioAuthoring.Dialogs.LoginDialog || {
             },
             failure: function(response) {
                 var loginError = document.getElementById("loginError");
-                var cstudioWcmPopup = document.getElementById("cstudio-wcm-popup-div");
+                var cstudioWcmPopup = document.getElementById("cstudio-wcm-popup-div-login");
                 loginError.innerHTML =  JSON.parse(response.responseText).message;
                 if(loginError.classList.contains("hidden")){
                     loginError.classList.remove("hidden");

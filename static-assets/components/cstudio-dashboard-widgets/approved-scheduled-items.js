@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var contextPath = location.protocol+"//"+location.hostname+":"+location.port; 
 
@@ -45,6 +62,8 @@ CStudioAuthoringWidgets.ApprovedScheduledItemsDashboard = CStudioAuthoringWidget
                      WcmDashboardWidgetCommon.getSimpleRow("edit",widgetId,CMgs.format(langBundle, "dashletApprovedSchedColEdit"),"minimize")+
 		             WcmDashboardWidgetCommon.getSimpleRow("browserUri",widgetId,CMgs.format(langBundle, "dashletApprovedSchedColURL"),"maximize")+
 		             "<th id='fullUri' class='width0'></th>"+
+                     WcmDashboardWidgetCommon.getSimpleRow("server",widgetId,CMgs.format(langBundle, "dashletApprovedSchedColEnvironment"),"maximize")+
+                     WcmDashboardWidgetCommon.getSimpleRow("packageId",widgetId,CMgs.format(langBundle, "dashletApprovedSchedColPackageId"),"maximize")+
                      WcmDashboardWidgetCommon.getSimpleRow("lastEdit",widgetId,CMgs.format(langBundle, "dashletApprovedSchedColLastEdited"),"ttThColLast alignRight minimize");
 		return header;	
 	};
@@ -89,12 +108,9 @@ CStudioAuthoringWidgets.ApprovedScheduledItemsDashboard = CStudioAuthoringWidget
 								"widgetFilterBy",
 								newState);
 
-			var sortBy=_self.currentSortBy? _self.currentSortBy:_self.defaultSortBy;
-			var searchNumber=_self.searchNumber? _self.searchNumber:_self.defaultSearchNumber;
-			WcmDashboardWidgetCommon.loadFilterTableData(
-									sortBy,
-									YDom.get(_self.widgetId),
-									_self.widgetId,searchNumber,filterByEl.value);
+            if (typeof WcmDashboardWidgetCommon != "undefined") {
+                WcmDashboardWidgetCommon.refreshAllDashboards();
+            }
 
 		};
 	};
@@ -104,7 +120,8 @@ CStudioAuthoringWidgets.ApprovedScheduledItemsDashboard = CStudioAuthoringWidget
 	 */
     this.renderLineItem = function(item, isFirst, count) {
 
-        var html = [],
+        if(!item.folder){
+            var html = [],
 
             name = item.internalName,
             displayName = WcmDashboardWidgetCommon.getFormattedString(name, 40, item.newFile),
@@ -112,7 +129,7 @@ CStudioAuthoringWidgets.ApprovedScheduledItemsDashboard = CStudioAuthoringWidget
 
         if (isFirst) {
 
-            html.push('<td colspan="4">');
+            html.push('<td colspan="6">');
 
             if (item.numOfChildren > 0) {
                 var parentClass = ['wcm-table-parent-', name, '-', count].join("");
@@ -128,77 +145,82 @@ CStudioAuthoringWidgets.ApprovedScheduledItemsDashboard = CStudioAuthoringWidget
                 '<span class="wcm-widget-margin-align" title="', name, '">',
                     displayName, ' (', item.numOfChildren, ')',
                 '</span>',
-                '</td>',
-                '<td colspan="1">&nbsp;</td>'
+                '</td>'
             ]);
 
         } else {
 
             var browserUri = CStudioAuthoring.Operations.getPreviewUrl(item, false, true),
                 displayBrowserUri = WcmDashboardWidgetCommon.getFormattedString(browserUri, 80),
-                uri = item.uri;
+                uri = item.uri,
+                environment = item.environment,
+                packageId = item.packageId;
 
                 editLinkId = 'editLink_' + this.widgetId + '_' + WcmDashboardWidgetCommon.encodePathToNumbers(item.uri);
 
-	    var ttSpanId =  "tt_" + this.widgetId + "_" + item.uri + "_" + (this.tooltipLabels.length + 1);
-            var itemTitle = CStudioAuthoring.Utils.getTooltipContent(item);
-            this.tooltipLabels.push(ttSpanId);
+            var ttSpanId =  "tt_" + this.widgetId + "_" + item.uri + "_" + (this.tooltipLabels.length + 1);
+                var itemTitle = CStudioAuthoring.Utils.getTooltipContent(item);
+                this.tooltipLabels.push(ttSpanId);
 
-            if (item.component && item.internalName == "crafter-level-descriptor.level.xml") {
-                browserUri = "";
-                displayBrowserUri = "";
+                if (item.component && item.internalName == "crafter-level-descriptor.level.xml") {
+                    browserUri = "";
+                    displayBrowserUri = "";
+                }
+
+                var itemIconStatus = CStudioAuthoring.Utils.getIconFWClasses(item);
+                itemIconStatus += ((item.disabled && !item.previewable) ? ' non-previewable-disabled' : '');
+
+                // this API will replace double quotes with ASCII character
+                // to resolve page display issue
+                displayName = CStudioAuthoring.Utils.replaceWithASCIICharacter(displayName);
+
+                var lastEditTime = CStudioAuthoring.Utils.formatDateFromUTC(item.eventDate, studioTimeZone);
+                if (item.lastEditDateAsString != undefined && item.lastEditDateAsString != "") {
+                    lastEditTime = CStudioAuthoring.Utils.formatDateFromUTC(item.lastEditDateAsString, studioTimeZone);
+                }
+                
+    
+                WcmDashboardWidgetCommon.insertEditLink(item, editLinkId);
+
+                var currentDashboard = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-selected"),
+                    currentCheckItem = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked") ?
+                        JSON.parse(CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked"))[0] : null,
+                    currentBrowserUri = browserUri !== "" ? browserUri : "/";
+    
+                html = html.concat([
+                    '<td style="padding-right:0px">',
+                        '<div class="dashlet-ident">',
+                                '<input type="checkbox" class="dashlet-item-check" id="', uri,
+                    ((this.widgetId == currentDashboard && (currentCheckItem && CStudioAuthoring.SelectedContent.getSelectedContent().length>0
+                        && item.internalName.trim() == CStudioAuthoring.SelectedContent.getSelectedContent()[0].internalName.trim())) ? ' checked' : ''),
+                    '"', (item.inFlight ? ' disabled' : ''), ' />',
+                        '</div>',
+                    '</td>',
+                    '<td style="padding-left:0px" class="itemNameCol">'+
+                        '<div class="', (item.disabled == true ? ' disabled' : ''), '" id="' + ttSpanId + '" title="' + itemTitle + '">',
+                            // '<span class="iconRow ', itemIconStatus, '"></span>',
+                            CStudioAuthoring.Utils.getContentItemIcon(item).outerHTML,
+                    '<a class="anchorRow' , (item.disabled == true ? ' dashboard-item disabled' : '') , (item.previewable == true ? ' previewLink' : ' non-previewable-link') , '" ', (item.previewable == true) ? 'href="/studio/preview/#/?page='+currentBrowserUri+'&site='+CStudioAuthoringContext.site+'"' : '', '">',
+                                displayName,
+                            '</a>',
+                        '</div>',
+                    '</td>',
+                    '<td id="' + editLinkId + '"></td>',
+                    "<td class='urlCol' title='",browserUri,"'>", displayBrowserUri, "</td>",
+                    "<td title='fullUri' class='width0'>", uri, "</td>",
+                    "<td title='server'>", environment, "</td>",
+                    "<td title='packageId'>", packageId, "</td>",
+                    "<td class='alignRight ttThColLast'>", lastEditTime, "</td>"
+                ]);
             }
 
-            var itemIconStatus = CStudioAuthoring.Utils.getIconFWClasses(item);
-            itemIconStatus += ((item.disabled && !item.previewable) ? ' non-previewable-disabled' : '');
-
-            // this API will replace double quotes with ASCII character
-            // to resolve page display issue
-            displayName = CStudioAuthoring.Utils.replaceWithASCIICharacter(displayName);
-
-            var lastEditTime = CStudioAuthoring.Utils.formatDateFromUTC(item.eventDate, studioTimeZone);
-            if (item.lastEditDateAsString != undefined && item.lastEditDateAsString != "") {
-                lastEditTime = CStudioAuthoring.Utils.formatDateFromUTC(item.lastEditDateAsString, studioTimeZone);
+            if(currentCheckItem && this.widgetId == currentDashboard){
+                CStudioAuthoring.Utils.Cookies.eraseCookie("dashboard-checked");
             }
-            
-  
-            WcmDashboardWidgetCommon.insertEditLink(item, editLinkId);
 
-            var currentDashboard = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-selected"),
-                currentCheckItem = CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked") ?
-                    JSON.parse(CStudioAuthoring.Utils.Cookies.readCookie("dashboard-checked"))[0] : null,
-                currentBrowserUri = browserUri !== "" ? browserUri : "/";
-  
-            html = html.concat([
-                '<td style="padding-right:0px">',
-                    '<div class="dashlet-ident">',
-                            '<input type="checkbox" class="dashlet-item-check" id="', uri,
-                ((this.widgetId == currentDashboard && (currentCheckItem && CStudioAuthoring.SelectedContent.getSelectedContent().length>0
-                    && item.internalName.trim() == CStudioAuthoring.SelectedContent.getSelectedContent()[0].internalName.trim())) ? ' checked' : ''),
-                '"', (item.inFlight ? ' disabled' : ''), ' />',
-                    '</div>',
-                '</td>',
-                '<td style="padding-left:0px" class="itemNameCol">'+
-                    '<div class="', (item.disabled == true ? ' disabled' : ''), '" id="' + ttSpanId + '" title="' + itemTitle + '">',
-                        // '<span class="iconRow ', itemIconStatus, '"></span>',
-						CStudioAuthoring.Utils.getContentItemIcon(item).outerHTML,
-				'<a class="anchorRow' , (item.disabled == true ? ' dashboard-item disabled' : '') , (item.previewable == true ? ' previewLink' : ' non-previewable-link') , '" ', (item.previewable == true) ? 'href="/studio/preview/#/?page='+currentBrowserUri+'&site='+CStudioAuthoringContext.site+'"' : '', '">',
-                            displayName,
-                        '</a>',
-                    '</div>',
-                '</td>',
-                '<td id="' + editLinkId + '"></td>',
-                "<td class='urlCol' title='",browserUri,"'>", displayBrowserUri, "</td>",
-                "<td title='fullUri' class='width0'>", uri, "</td>",                
-                "<td class='alignRight ttThColLast'>", lastEditTime, "</td>"
-            ]);
+            return html.join("");
         }
 
-        if(currentCheckItem && this.widgetId == currentDashboard){
-            CStudioAuthoring.Utils.Cookies.eraseCookie("dashboard-checked");
-        }
-
-        return html.join("");
     };
 	
 	

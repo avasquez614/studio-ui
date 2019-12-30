@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /**
  * WCM Search Plugin
  */
@@ -103,7 +120,7 @@ CStudioAuthoring.ContextualNav.IceToolsMod = CStudioAuthoring.ContextualNav.IceT
 				},
 				
 				render: function() {
-				    var el, containerEl, pencilIcon, iconLabel, iceOn;
+				    var el, containerEl, pencilIcon, iceOn;
 
                     var CMgs = CStudioAuthoring.Messages;
 					var previewLangBundle = CMgs.getBundle("forms", CStudioAuthoringContext.lang);
@@ -119,6 +136,7 @@ CStudioAuthoring.ContextualNav.IceToolsMod = CStudioAuthoring.ContextualNav.IceT
 					iceOn = !!(sessionStorage.getItem('ice-on'));   // cast string value to a boolean
 
                     YDom.addClass(pencilIcon, "nav-icon fa fa-pencil f18");
+                    $(pencilIcon).attr('data-title', 'inContextEdit');
 
                     if(iceOn){
                         YDom.addClass(pencilIcon, "icon-yellow");
@@ -126,12 +144,7 @@ CStudioAuthoring.ContextualNav.IceToolsMod = CStudioAuthoring.ContextualNav.IceT
                         YDom.addClass(pencilIcon, "icon-default");
                     }
 
-                    iconLabel = document.createElement("span");
-                    YDom.addClass(iconLabel, "nav-label");
-                    iconLabel.innerHTML = CMgs.format(previewLangBundle, "inContextEdit");
-
 					containerEl.appendChild(pencilIcon);
-                    containerEl.appendChild(iconLabel);
 					el.appendChild(containerEl);
 
 					containerEl.onclick = function() {

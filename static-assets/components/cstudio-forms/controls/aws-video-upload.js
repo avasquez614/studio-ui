@@ -1,8 +1,25 @@
-CStudioForms.Controls.AWSVideoUpload = CStudioForms.Controls.AWSVideoUpload ||  
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+CStudioForms.Controls.AWSVideoUpload = CStudioForms.Controls.AWSVideoUpload ||
 function(id, form, owner, properties, constraints, readonly)  {
   this.owner = owner;
   this.owner.registerField(this);
-  this.errors = []; 
+  this.errors = [];
   this.properties = properties;
   this.constraints = constraints;
   this.fileEl = null;
@@ -12,7 +29,7 @@ function(id, form, owner, properties, constraints, readonly)  {
   this.form = form;
   this.id = id;
   this.readonly = readonly;
-  
+
   if(properties) {
     var required = constraints.find(function(property){ return property.name === "required"; });
     if(required) {
@@ -23,20 +40,20 @@ function(id, form, owner, properties, constraints, readonly)  {
       this.profile_id = profile_id.value;
     }
   }
-  
+
   return this;
 };
 
 YAHOO.extend(CStudioForms.Controls.AWSVideoUpload, CStudioForms.CStudioFormField, {
-  
+
   getLabel: function() {
     return "AWS Video Upload";
   },
-  
+
   getName: function() {
     return "aws-video-upload";
   },
-  
+
   setValue: function(value) {
     var validationResult = true;
     if(value && value[0] && value[0].base_key) {
@@ -51,27 +68,39 @@ YAHOO.extend(CStudioForms.Controls.AWSVideoUpload, CStudioForms.CStudioFormField
     this.renderValidation(true, validationResult);
     this.owner.notifyValidation();
   },
-  
+
   getValue: function() {
     return this.value;
   },
-  
+
   getSupportedProperties: function() {
     return [
+      { label: "Service", name: "service", type: "dropdown", defaultValue: [
+          { value: "elastictranscoder", label: "Elastic Transcoder", selected: true },
+          { value: "mediaconvert", label: "MediaConvert", selected: false },
+        ]
+      },
       { label: "Profile ID", name: "profile_id", type: "string", defaultValue: "elastic-transcoder-default" }
     ];
   },
-  
+
   getSupportedConstraints: function() {
     return [
       { label: CMgs.format(langBundle, "required"), name: "required", type: "boolean" }
     ];
   },
-  
-  _onChange: function(evt, obj) {
-    var serviceUri = CStudioAuthoring.Service.createServiceUri("/api/1/services/api/1/aws/elastictranscoder/transcode.json");
 
-    var callback = { 
+  _onChange: function(evt, obj) {
+    var service = JSON.parse(obj.properties.find(function(p) { return p.name === "service"; }).value).find(function(p){ return p.selected; }).value;
+    var url;
+    if(service === 'elastictranscoder') {
+      url = "/api/1/services/api/1/aws/elastictranscoder/transcode.json";
+    } else if(service === 'mediaconvert') {
+      url = "/api/1/services/api/1/aws/mediaconvert/upload.json";
+    }
+    var serviceUri = CStudioAuthoring.Service.createServiceUri(url);
+
+    var callback = {
       cache: false,
       upload: function(o) {
         document.getElementById("cstudioSaveAndClose").disabled="";
@@ -125,8 +154,8 @@ YAHOO.extend(CStudioForms.Controls.AWSVideoUpload, CStudioForms.CStudioFormField
       }
     };
 
-    YAHOO.util.Connect.setForm("upload_form", true);
-    serviceUri += "&" + CStudioAuthoringContext.xsrfParameterName + "=" + CStudioAuthoringContext.xsrfToken;    
+    YAHOO.util.Connect.setForm("upload_form_" + obj.id, true);
+    serviceUri += "&" + CStudioAuthoringContext.xsrfParameterName + "=" + CrafterCMSNext.util.auth.getRequestForgeryToken();
     YAHOO.util.Connect.asyncRequest("POST", serviceUri, callback);
     document.getElementById("cstudioSaveAndClose").disabled="disabled";
     document.getElementById("cstudioSaveAndCloseDraft").disabled="disabled";
@@ -134,16 +163,16 @@ YAHOO.extend(CStudioForms.Controls.AWSVideoUpload, CStudioForms.CStudioFormField
     document.getElementById("cancelBtn").disabled="disabled";
     obj.fileEl.innerHTML = "<i class=\"fa fa-spinner fa-spin\"/>";
   },
-  
-  render: function(config, containerEl, lastTwo) {    
+
+  render: function(config, containerEl, lastTwo) {
     var titleEl = document.createElement("span");
 		YAHOO.util.Dom.addClass(titleEl, "cstudio-form-field-title");
 		titleEl.innerHTML = config.title;
     containerEl.appendChild(titleEl);
-    
+
     var controlWidgetContainerEl = document.createElement("div");
 		YAHOO.util.Dom.addClass(controlWidgetContainerEl, "cstudio-form-control-input-container");
-    
+
     var validEl = document.createElement("span");
 		YAHOO.util.Dom.addClass(validEl, "validation-hint");
 		YAHOO.util.Dom.addClass(validEl, "cstudio-form-control-validation fa fa-check");
@@ -151,39 +180,53 @@ YAHOO.extend(CStudioForms.Controls.AWSVideoUpload, CStudioForms.CStudioFormField
 
     this.fileEl = document.createElement("span");
     controlWidgetContainerEl.appendChild(this.fileEl);
-    
+
     var formEl = document.createElement("form");
-    formEl.id = "upload_form";
-    
-    var inputEl = document.createElement("input");
-		this.inputEl = inputEl;
-    inputEl.type = "file";
-    inputEl.name = "file";
-		YAHOO.util.Dom.addClass(inputEl, "datum");
-		YAHOO.util.Dom.addClass(inputEl, "cstudio-form-control-input");
-    YAHOO.util.Event.on(inputEl, "change",  this._onChange, this);
-    
-		formEl.appendChild(inputEl);
-    
+    formEl.id = "upload_form_" + this.id;
+
     var profileEl = document.createElement("input");
     profileEl.type = "hidden";
     profileEl.name = "profile";
     profileEl.value = this.profile_id;
-    
+
     formEl.appendChild(profileEl);
-    
+
     var siteEl = document.createElement("input");
     siteEl.type = "hidden";
     siteEl.name = "site";
     siteEl.value = CStudioAuthoringContext.site;
-    
+
     formEl.appendChild(siteEl);
-    
+
+    var inputContainerEl = document.createElement("div");
+    YAHOO.util.Dom.addClass(inputContainerEl, "cstudio-form-control-input-help-container");
+
+    var inputEl = document.createElement("input");
+    this.inputEl = inputEl;
+    inputEl.type = "file";
+    inputEl.name = "file";
+    YAHOO.util.Dom.addClass(inputEl, "datum");
+    YAHOO.util.Dom.addClass(inputEl, "cstudio-form-control-input");
+    YAHOO.util.Event.on(inputEl, "change",  this._onChange, this);
+
+    inputContainerEl.appendChild(inputEl);
+
+    this.renderHelp(config, inputContainerEl);
+
+    formEl.appendChild(inputContainerEl);
+
     controlWidgetContainerEl.appendChild(formEl);
-    
+
+    var descriptionEl = document.createElement("span");
+    YAHOO.util.Dom.addClass(descriptionEl, 'description');
+    YAHOO.util.Dom.addClass(descriptionEl, 'cstudio-form-field-description');
+    descriptionEl.innerHTML = config.description;
+
+    controlWidgetContainerEl.appendChild(descriptionEl);
+
     containerEl.appendChild(controlWidgetContainerEl);
   }
-  
+
 });
 
 CStudioAuthoring.Module.moduleLoaded("cstudio-forms-controls-aws-video-upload", CStudioForms.Controls.AWSVideoUpload);

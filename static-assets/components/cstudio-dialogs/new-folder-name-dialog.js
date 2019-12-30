@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var YEvent = YAHOO.util.Event;
 
@@ -17,34 +34,34 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
 	/**
 	 * show dialog
 	 */
-	showDialog: function(site, path, serviceUri, callingWindow, callback) {	
+	showDialog: function(site, path, serviceUri, callingWindow, callback) {
 		this._self = this;
 
 		this.dialog = this.createDialog(path, site, serviceUri);
 
 		this.path = path;
 		this.site = site;
-		this.asPopup = true;			
+		this.asPopup = true;
 		this.serviceUri = serviceUri;
 		this.callingWindow = callingWindow;
 		this.callback = callback;
 		this.dialog.show();
         YDom.get("folderNameId").focus();
 	},
-	
+
 	/**
 	 * hide dialog
 	 */
     closeDialog:function() {
         this.dialog.destroy();
     },
-	 	
+
 	/**
 	 * create dialog
 	 */
 	createDialog: function(path, site, serviceUri) {
 		YDom.removeClass("cstudio-wcm-popup-div", "yui-pe-content");
-		
+
 		var newdiv = YDom.get("cstudio-wcm-popup-div");
 		if (newdiv == undefined) {
 			newdiv = document.createElement("div");
@@ -72,7 +89,7 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
 
 		document.getElementById("upload-popup-inner").style.width = "350px";
 		document.getElementById("upload-popup-inner").style.height = "auto";
-		
+
 		 // Instantiate the Dialog
 		create_folder_dialog = new YAHOO.widget.Dialog("cstudio-wcm-popup-div", {
             width: "360px",
@@ -80,7 +97,7 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
             effect:{
 		        effect: YAHOO.widget.ContainerEffect.FADE,
 		        duration: 0.25
-		    }, 
+		    },
             fixedcenter: true,
             visible: false,
             modal: true,
@@ -88,14 +105,14 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
             constraintoviewport: true,
             underlay: "none"
         });
-								
+
 		// Render the Dialog
 		create_folder_dialog.render();
-		
+
 		var eventParams = {
 			self: this
 		};
-		
+
 		var inputEl = document.getElementById("folderNameId"),
             me = this;
 
@@ -116,7 +133,7 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
 
 		return create_folder_dialog;
 	},
-		
+
 	/**
 	 * event fired when the ok is pressed
 	 */
@@ -125,7 +142,7 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
 		var newFolderName = document.getElementById("folderNameId").value;
 		var serviceUri = CStudioAuthoring.Service.createServiceUri(args.self.serviceUri
 				+ "?site=" + args.self.site + "&path=" + args.self.path + "&name=" + newFolderName);
-		
+
         var serviceCallback = {
             success: function(oResponse) {
 				//reload the page for now, need to improve to reload the tree dynamically
@@ -139,11 +156,11 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
                 document.getElementById("indicator").innerHTML = message;
 				YAHOO.util.Dom.setStyle('indicator', 'color', 'red');
             },
-            
+
             callback: args.self.callback
         };
 		YAHOO.util.Dom.setStyle('indicator', 'visibility', 'visible');
-		YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);
+		YConnect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
 		YConnect.asyncRequest('POST', serviceUri, serviceCallback);
 	},
 
@@ -184,7 +201,7 @@ CStudioAuthoring.Dialogs.NewFolderNameDialog = CStudioAuthoring.Dialogs.NewFolde
 	    	data = data.substr(0,el.maxLength);
 	    	el.value = data;
 	    }
-	}	
+	}
 
 
 };

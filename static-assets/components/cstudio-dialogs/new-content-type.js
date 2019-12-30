@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var YEvent = YAHOO.util.Event;
 
@@ -141,9 +158,7 @@ CStudioAuthoring.Dialogs.NewContentType = CStudioAuthoring.Dialogs.NewContentTyp
                     YAHOO.Bubbling.fire("content-type.values.changed");
 					value = document.getElementById('contentTypeDisplayName').value;
 
-					var find = ' ';
-					var re = new RegExp(find, 'g');
-					value = value.replace(re, '-');
+					value = value.replace(/[^a-z0-9]/gi, '');
 					value = value.toLowerCase();
 
                     document.getElementById('contentTypeName').value = value;
@@ -195,6 +210,8 @@ CStudioAuthoring.Dialogs.NewContentType = CStudioAuthoring.Dialogs.NewContentTyp
 			 '<file-extension>xml</file-extension>\r\n' +
 			 '<content-as-folder>'+contentAsFolder+'</content-as-folder>\r\n' +
 			 '<previewable>'+ (type == 'page') +'</previewable>\r\n' +
+             '<quickCreate>false</quickCreate>\r\n' +
+             '<quickCreatePath></quickCreatePath>\r\n' +
 			 '<noThumbnail>true</noThumbnail>\r\n' +
 			 '<image-thumbnail></image-thumbnail>\r\n' +
 			'</content-type>';
@@ -226,6 +243,8 @@ CStudioAuthoring.Dialogs.NewContentType = CStudioAuthoring.Dialogs.NewContentTyp
 							'<description></description>\r\n' +
 							'<content-type>/'+type+'/'+name+'</content-type>\r\n' +
 							'<objectType>'+type+'</objectType>\r\n' +
+                            '<quickCreate>false</quickCreate>\r\n' +
+                            '<quickCreatePath></quickCreatePath>\r\n' +
 							'<properties>\r\n' +
 								"<property>\r\n"+
 								"<name>content-type</name>\r\n"+
@@ -273,8 +292,15 @@ CStudioAuthoring.Dialogs.NewContentType = CStudioAuthoring.Dialogs.NewContentTyp
 									'<fields>\r\n' +
 
 
-										'<field>\r\n' +
-											'<type>file-name</type>\r\n' +
+										'<field>\r\n';
+											if(type == "component") {
+												formDefContent +=
+												'<type>auto-filename</type>\r\n';
+											}else{
+												formDefContent +=
+												'<type>file-name</type>\r\n';
+											}
+											formDefContent +=
 											'<id>file-name</id>\r\n' +
 											'<iceId></iceId>\r\n' +
 											'<title>'+fileNameLabel+'</title>\r\n' +
@@ -394,7 +420,7 @@ CStudioAuthoring.Dialogs.NewContentType = CStudioAuthoring.Dialogs.NewContentTyp
 	writeConfig: function(url, content, cb) {
 		YAHOO.util.Connect.setDefaultPostHeader(false);
 		YAHOO.util.Connect.initHeader("Content-Type", "application/xml; charset=utf-8");
-		YAHOO.util.Connect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CStudioAuthoringContext.xsrfToken);
+		YAHOO.util.Connect.initHeader(CStudioAuthoringContext.xsrfHeaderName, CrafterCMSNext.util.auth.getRequestForgeryToken());
 		YAHOO.util.Connect.asyncRequest('POST', CStudioAuthoring.Service.createServiceUri(url), cb, content);
 	},
 

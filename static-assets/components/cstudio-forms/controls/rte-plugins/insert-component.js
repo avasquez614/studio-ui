@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComponent || (function () {
 
 		var WAITING_IMG = "<img src='"+CStudioAuthoringContext.authoringAppBaseUri+"/static-assets/themes/cstudioTheme/images/wait.gif' alt='Loading ...' />",
@@ -353,7 +370,7 @@ CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComp
 				controlsEl.innerHTML = controlsHTML;
 				el.appendChild(controlsEl);
 
-				moveEl = tinymce.DOM.select("#cstudio-component-controls .move > a", editor.getDoc())[0];
+				moveEl = tinymce2.DOM.select("#cstudio-component-controls .move > a", editor.getDoc())[0];
 				moveEl.onclick = function() {
 					var id = el.id;
 					var contentItem = null;
@@ -369,7 +386,7 @@ CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComp
 					}
 				}
 
-				editEl = tinymce.DOM.select("#cstudio-component-controls .edit > a", editor.getDoc())[0];
+				editEl = tinymce2.DOM.select("#cstudio-component-controls .edit > a", editor.getDoc())[0];
 				editEl.onclick = function() {
 					var id = el.id;
 					var contentItem = null;
@@ -386,7 +403,7 @@ CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComp
 							success: function(contentTO) {
 								var formSaveCb = {
 									success: function(formName, name, value) {
-										_self.renderComponent(tinyMCE.activeEditor, contentItem);
+										_self.renderComponent(tinymce2.activeEditor, contentItem);
 									},
 									failure: function() {
 									}
@@ -410,7 +427,7 @@ CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComp
 					}
 				}
 
-				deleteEl = tinymce.DOM.select("#cstudio-component-controls .delete > a", editor.getDoc())[0];
+				deleteEl = tinymce2.DOM.select("#cstudio-component-controls .delete > a", editor.getDoc())[0];
 				deleteEl.onclick = function() {
 					var id = el.id;
 					var components = model['rteComponents'];
@@ -433,10 +450,10 @@ CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComp
 					var componentEl = ed.dom.doc.getElementById(_self.componentOnTheMove.id);
 					componentEl.parentNode.removeChild(componentEl);
 
-					tinyMCE.activeEditor.execCommand('mceInsertContent', false,
+					tinymce2.activeEditor.execCommand('mceInsertContent', false,
 						"<span id=\"" + _self.componentOnTheMove.id + "\" class='crComponent' >" + WAITING_IMG + "</span>");
 
-					_self.renderComponent(tinyMCE.activeEditor, _self.componentOnTheMove);
+					_self.renderComponent(tinymce2.activeEditor, _self.componentOnTheMove);
 
 					ed.dom.doc.body.style.cursor = "default";
 					_self.componentOnTheMove = null;
@@ -480,9 +497,9 @@ CStudioForms.Controls.RTE.InsertComponent = CStudioForms.Controls.RTE.InsertComp
 
 	}) ();
 
-tinymce.create('tinymce.plugins.CStudioInsertComponentPlugin', CStudioForms.Controls.RTE.InsertComponent);
+tinymce2.create('tinymce2.plugins.CStudioInsertComponentPlugin', CStudioForms.Controls.RTE.InsertComponent);
 
 // Register plugin with a short name
-tinymce.PluginManager.add('insertcomponent', tinymce.plugins.CStudioInsertComponentPlugin);
+tinymce2.PluginManager.add('insertcomponent', tinymce2.plugins.CStudioInsertComponentPlugin);
 
 CStudioAuthoring.Module.moduleLoaded("cstudio-forms-controls-rte-insert-component", CStudioForms.Controls.RTE.InsertComponent);

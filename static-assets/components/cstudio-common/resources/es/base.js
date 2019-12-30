@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioAuthoring.Messages.registerBundle("siteDashboard", "es", {
     dashboardTitle: "Panel de Control",
 
@@ -20,8 +37,10 @@ CStudioAuthoring.Messages.registerBundle("siteDashboard", "es", {
     dashletGoLiveHideInProgress: "Esconder Artículos \"En-Progreso \" ",
     dashletGoLiveColPageName: "Nombre del Artículo",
     dashletGoLiveColEdit: "Editar",
+    dashletGoLiveColView: "Ver",
     dashletGoLiveColURL: "URL",
-    dashletGoLiveColPublishDate: "Fecha y Hora de Publicación",
+    dashletGoLiveColEnvironment: "Ambiente",
+    dashletGoLiveColPublishDate: "Fecha de Publicación",
     dashletGoLiveColLastEditedBy: "Ultima Edición por",
     dashletGoLiveColLastEditedDate: "Última Edición",
     dashletGoLivePages: "Páginas ({0})",
@@ -36,6 +55,8 @@ CStudioAuthoring.Messages.registerBundle("siteDashboard", "es", {
     dashletApprovedSchedColGoLiveDate: "Fecha para ir en Vivo",
     dashletApprovedSchedColEdit: "Editar",
     dashletApprovedSchedColURL: "URL",
+    dashletApprovedSchedColEnvironment: "Ambiente",
+    dashletApprovedSchedColPackageId: "Id del Paquete",
     dashletApprovedSchedColLastEdited: "Última Edición",
     dashletApprovedSchedFilterPages: "Páginas",
     dashletApprovedSchedFilterComponents: "Componentes",
@@ -51,7 +72,7 @@ CStudioAuthoring.Messages.registerBundle("siteDashboard", "es", {
     dashletRecentDeployColMadeLiveDateDate: "Fecha de Publicación",
     dashletRecentDeployColEdit: "Editar",
     dashletRecentDeployColURL: "URL",
-    dashletRecentDeployColEndpoint: "Servidor",
+    dashletRecentDeployColEndpoint: "Ambiente",
     dashletRecentDeployColDeployBy: "Publicado por",
     dashletRecentDeployColLastEdited: "Última Edición",
     dashletRecentDeployColPageName: "Nombre del Artículo",
@@ -140,7 +161,10 @@ CStudioAuthoring.Messages.registerBundle("contextnav", "es", {
     publishStatus: "Estado de Publicación",
     idle: "Desocupado",
     busy: "Ocupado",
-    stopped: "Detenido"
+    ready: "Listo",
+    stopped: "Detenido",
+    started: "Empezado",
+    quickCreateEmpty:"No existe configuración para la creación rápida. Solicite al administrador del sistema que configure los tipos de contenido de creación rápida que desee."
 
 });
 
@@ -154,7 +178,6 @@ CStudioAuthoring.Messages.registerBundle("previewTools", "es", {
     iphone: "iPhone5 / iPhone5S",
     iPad: "iPad",
     targeting: "Orientación",
-    analytics: "Análisis",
     translation: "Traducción",
     inContextEditOn: "Encender Edición En-Contexto",
     inContextEditOff: "Apagar Edición En-Contexto",
@@ -218,7 +241,13 @@ CStudioAuthoring.Messages.registerBundle("previewTools", "es", {
     documentation: "Documentación",
     about: "Acerca De",
     settings: "Preferencias",
-    signOut: "Desloguearse"
+    signOut: "Desloguearse",
+    mainMenu: "Menu Principal",
+
+    videoProcessed: 'El video se está procesado, la vista previa estará disponible cuando se complete el procesamiento',
+    quickCreate: "Creación Rápida",
+    inContextEdit: "Edición en Contexto"
+
 
 });
 
@@ -233,7 +262,6 @@ CStudioAuthoring.Messages.registerBundle("siteDropdown", "es", {
     classes: "Clases",
     templates: "Plantillas",
     scripts: "Scripts",
-    analyticsDashboard: "Panel de Control de Análisis",
     adminConsole: "Consola de Administración",
     siteconfig: "Configuración del sitio",
     previewSync: "Vista previa de Sincronización",
@@ -384,13 +412,15 @@ CStudioAuthoring.Messages.registerBundle("forms", "es", {
     historyDialogCompare: "Comparar",
 
     deleteDialogTitle:"Eliminar",
-    deleteDialogSubTitle:"Los siguientes elementos seleccionados serán eliminados:",
+    deleteDialogSubTitle:"Los elementos seleccionados se eliminarán junto con sus elementos. Revise los elementos dependientes antes de eliminarlos, ya que estos terminarán con referencias de enlaces rotos.",
     deleteDialogSetLink:'Establecer todo para "Ahora"',
     deleteDialogPage:"Página",
     deleteDialogDelete:"Eliminar",
     deleteDialogNow:"Ahora",
     deleteDialogFeedBack:"Las dependencias deben comprobarse antes de enviarlas",
     deleteDialogNoItemsSelected:"No hay artículos seleccionados",
+    deletedTitle: "Selección eliminada",
+    deletedMessage: "La selección se está eliminando y será removida pronto.",
 
     deleteSubmitDialogTitle:"Enviar para su eliminación",
     deleteSubmitDialogTime:"¿Cuándo desea eliminar los artículos marcados?",
@@ -398,7 +428,8 @@ CStudioAuthoring.Messages.registerBundle("forms", "es", {
     deleteSubmitDialogAsSoon:"Lo antes posible.",
 
     approveDialogTitle: "Aprobar para Publicar",
-    approveDialogSubTitle: "Los siguientes elementos seleccionados estarán en vivo.",
+    approveDialogSubTitle: "Los archivos seleccionados serán publicados. Las dependencias fuertes se incluyen automáticamente. Las dependencias suaves son opcionales y puede elegir cuál incluir.",
+    approveDialogWarning:"ADVERTENCIA: los elementos que ha seleccionado para su aprobación se enviaron con diferentes fechas/horas de publicación solicitadas.",
     dependenciesDialogTitle: "Dependencias",
     dependenciesDialogSubTitle: "Dependencias mostradas para:",
     dependsOn: "Depende de",
@@ -418,6 +449,23 @@ CStudioAuthoring.Messages.registerBundle("forms", "es", {
     requestApproveDialogTitle: "Solicitud de Publicación",
     requestApproveDialogSubTitle: "Cuando desea que los artiículos vayan en vivo?",
     requestApproveDialogEmailMe: "Enviarme un correo cuando los artículos sean aprobados para publicarse.",
+
+    itemsForPublish:"Articulos para publicar",
+    selectAll:"Seleccionar todo",
+    hardDependencies:"Dependencias fuertes",
+    submissionMandatory: "Presentación obligatoria",
+    softDependencies:"Dependencias suaves",
+    submissionOptional:"Presentación opcional",
+    showAllDependencies:"Mostrar todas las dependencias",
+    changesSelectionItems:'Los cambios en la selección de elementos para publicar requerirán que se recalculen "todas las dependencias".',
+    loadingDependencies:"Cargando dependencias, por favor espere ...",
+
+    childItemsText:"Artículos hijos",
+    willGetDeleted:"Será eliminado",
+    dependendtItems:"Artículos dependientes",
+    brokenItems:"Habrá referencias rotas",
+    deleteItems:"Eliminar ítems",
+    uploadingDepenedents:"Updating dependents, please wait...",
 
     newContTypeDialogTitle: "Crear Tipo de Contenido",
     newContTypeDialogDisplayLabel: "Etiqueta a Mostrar",
@@ -481,32 +529,53 @@ CStudioAuthoring.Messages.registerBundle("forms", "es", {
     numberPerPage: "Introduzca un número en el elemento de muestra por página.",
     revertError: "Error al revertir.",
     legacyError: "El servidor de formulario heredado ya no es compatible.",
-    contentTypesEmpty: "No hay tipos de contenido disponibles que se pueden crear en la ruta de configuración."
+    contentTypesEmpty: "No hay tipos de contenido disponibles que se pueden crear en la ruta de configuración.",
+    componentCategoriesError: "No hay categorías disponibles que puedan ser creadas.",
+    pluginError: "Se encontraron problemas con la configuración de su plugin. Faltan las siguientes propiedades:",
+    pluginErrorSolution: "Vaya a <a id='siteConfigURL'> [página de configuración del sitio] </a> y seleccione 'Herramientas de configuración del sitio' en el menú desplegable para editar el archivo.",
+    control: "Control: ",
+    datasource: "Fuente de datos: ",
+    propertyMessage: " propiedad esta faltando",
+    propertiesMessage: " propiedades están faltando"
 
 });
 
 CStudioAuthoring.Messages.registerBundle("search", "es", {
-    defaultTitle: "Busqueda",
-    searchButtonLabel: "Busqueda",
-    keywordsLabel: "Palabras Claves",
-    searchResults: "Resultados de la búsqueda",
-    showing: "(Mostrando {0}-{1} de {2})",
-    hideDescriptions: "Ocultar Descripciones",
-    showDescriptions: "Mostrar Descripciones",
-    show: "Mostrar",
-    sort: "Ordenar",
-    sortRelevance: "Por Relevancia",
-    sortAlphabetical: "Alfabéticamente",
-    sortCreateDate: "Por Fecha de Creación",
-    pagePrevious: "Anterior",
-    pageNext: "Siguiente",
-    resultsEdited: "Editado",
-    resultsBy: "Por",
-    resultsUnknownType: "Tipo Desconocido",
-    resultsTemplate: "Plantilla",
-    errSearchFailed: "Busqueda Fallida. Trate de ajustar sus filtros. Causa: Si el problema persiste contacte al administrador y consultele el siguiente error: {0}",
-    errNoResults: "No se han encontrado resultados.",
-    zeroResults: "(0 resultados)"
+    searchInput: "Buscar",
+    numResults: "Número de Resultados",
+    selectAll: "Seleccionar Todos",
+    filters: "Filtros",
+    asc: "Ascendente",
+    desc: "Descendente",
+    sortOrder: "Orden",
+    sortBy: "Ordenar Por",
+    name: "Nombre",
+    images: "Imágenes",
+    videos: "Videos",
+    width: "Ancho",
+    height: "Alto",
+    "content-type": "Content Type",
+    "mime-type": "MIME Type",
+    "last-edit-date": "Fecha de Última Edición",
+    size: "Tamaño de contenido",
+    today: "Hoy",
+    "in-last-day": "El último día",
+    "in-last-week": "La última semana",
+    "over-a-month-ago": "Hace más de un mes",
+    "over-six-months-ago": "Hace más de seis meses",
+    "over-a-week-ago": "Hace más de una semana",
+    "over-a-year-ago": "Hace más de un año",
+    paginationFirst: "Primero",
+    paginationPrev: "Anterior",
+    paginationNext: "Siguiente",
+    paginationLast: "Último",
+    seeMore: 'Ver Más',
+    seeLess: 'Ver Menos',
+    under: 'Menos de ',
+    above: 'y más',
+    errorMessage: 'Hubo un problema completando su búsqueda, por favor contacte al Administrador si el problema persite.',
+    clear: 'Limpiar',
+    apply: 'Aplicar'
 });
 
 CStudioAuthoring.Messages.registerBundle("browse", "es", {
@@ -540,6 +609,8 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     workflowstates: "Flujo de Trabajo de Estados",
     logginglevels: "Niveles de Registro",
     logconsole: "Consola de Registros",
+    publishing: "Publicación",
+    status: "Estado",
     audit: "Auditoría",
     groups: "Grupos",
     contentTypes: "Tipos de Contenido",
@@ -598,12 +669,16 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     /*Controls*/
     textArea: "Área de Texto",
     linkTextarea: "Área de Texto Vinculante",
-    richTextEditor: "Editor de Texto Enriquecido",
+    richTextEditor: "Editor de Texto Enriquecido (TinyMCE 2)",
+    rteTinyMCE5: "Editor de Texto Enriquecido (TinyMCE 5)",
     input: "Campo de Entrada",
+    numericInput: "Entrada numérica",
+    uuid: "UUID",
     linkInput:"Campo de Entrada Vinculante",
     dropdown: "Menú Desplegable",
     linkedDropdown:"Menú Desplegable Vinculado",
     dateTime: "Fecha Y Hora",
+    time: "Hora",
     checkBox: "Casilla de Verificación",
     groupedCheckboxes: "Grupo de Casillas de Verificación",
     itemSelector: "Selector de Elementos",
@@ -621,8 +696,22 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     publishStarted:"Se ha iniciado el proceso de publicación.",
 
     /*Datasources */
-    childContent: "Contenido Hijos",
+    childContent: "Contenido Hijo",
+    embeddedContent: "Contenido Empotrado",
     imageUploadedDesktop: "Imagen Subida Desde El Escritorio",
+    WebDAVUploadImage: "Imagen cargada en el repositorio de WebDav",
+    WebDAVUploadVideo: "Video cargado en el repositorio de WebDav",
+    imageWebDavRepository:"Imagen del repositorio de WebDav",
+    videoWebDavRepository:"Video del repositorio de WebDav",
+    fileWebDavRepository:"Archivo del repositorio de WebDav",
+    fileUploadedWebDavRepository:"Archivo cargado en el repositorio de WebDav",
+    S3UploadImage: "Imagen cargada en el repositorio de S3",
+    S3UploadVideo: "Video cargado en el repositorio de S3",
+    imageS3Repository:"Imagen del repositorio de S3",
+    videoS3Repository:"Video del repositorio de S3",
+    videos3Transcoding: "Transcodificación de video del repositorio de S3",
+    fileS3Repository:"Archivo del repositorio de S3",
+    fileUploadedS3Repository:"Archivo cargado en el repositorio de S3",
     DAMImage: "Imagen DAM (Flickr)",
     fileUploadedDesktop: "Archivo Subido Desde El Escritorio",
     flashUploadedDesktop: "Flash Subido Desde El Escritorio",
@@ -635,7 +724,10 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     hubspotForms: "Formularios Hubspot",
     imageFromRepository: "Imagen Del Repositorio",
     imageFromCMISRepository: "Imagen Del Repositorio CMIS",
-    CMISRepository: "Repositorio CMIS",
+    CMISRepository: "Archivo del repositorio de CMIS",
+    CMISUpload: "Archivo cargado en el repositorio CMIS",
+    CMISUploadImage:"Imagen cargada en el repositorio CMIS",
+    CMISUploadVideo:"Video subido al repositorio de CMIS",
     salesforceCampaigns: "Campañas de Salesforce",
     treeContent: "Contenido del Árbol",
 
@@ -644,6 +736,7 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     maxLength: "Tamaño Máximo",
     width: "Ancho",
     height: "Altura",
+    autoGrow: "Auto Crecimiento",
     allowResize: "Permitir Cambio de Tamaño",
     forceRootBlockP: "Forzar Etiqueta p en Bloque ",
     forcePNewLines: "Forzar Etiqueta p en Línea",
@@ -652,6 +745,7 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     supportedChannels: "Canales soportados",
     RTEConfiguration: "Configuración RTE",
     imageManager: "Administrador de Imágenes",
+    videoManager: "Administrador de Videos",
     showDate: "Mostrar Fecha",
     showTime: "Mostrar Hora",
     showClear: "Mostrar Limpiar Valor",
@@ -695,8 +789,22 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     taxonomyName: "Nombre de Taxonomía",
     defaultType: "Tipo por Defecto",
     displayTemplate: "Plantilla de Pantalla",
+    noTemplateRequired: "Plantilla no Requerida",
     mergeStrategy: "Combinar Estrategia",
     dependsOn: "Depende En",
+    profileId: "ID de perfil",
+    path: "Ruta",
+    type: "Tipo",
+    quickCreate: "Creación Rápida",
+    showQuickCreate: "Mostrat en Creación Rápida",
+    destinationPath: "Patrón de ruta de destino",
+    inputProfileId: "Id de perfil de entrada",
+    outputProfileId: "Id de perfil de salida",
+    postfixes: "Postfixes",
+    enableCreateNew: "Mostrar 'Crear nuevo'",
+    enableBrowseExisting: "Mostrar 'Seleccionar Existentes'",
+    enableSearchExisting: "Mostrar 'Buscar Existentes'",
+    useSearch: "Usar Búsqueda",
 
     /*Restrictions*/
     required: "Requerido",
@@ -741,10 +849,6 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     confTabSelectConf: "Seleccione la Configuracioón",
     confTabConfigurations: "Configuraciones",
     confTabConfDesc: "Define esta lista de configuraciones",
-    confTabAnalyticsDashboardConf: "Configuración de Panel de Control de Análisis",
-    confTabAnalyticsDashboardConfDesc: "Define los tipos de informes que se muestran en el Panel de Control de Análisis",
-    confTabAnalyticsPreviewConf: "Vista previa de Configuración de Análisis",
-    confTabAnalyticsReportConf: "Informe de Configuración de Análisis",
     confTabContextualNavigationConf: "Configuración de Navegación Contextual",
     confTabContextualNavigationConfDesc: "Define los módulos de la barra de navegación contextual del sitio",
     confTabSidebarConf: "Configuración del Menu barra lateral",
@@ -757,6 +861,10 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     confTabTargetsConfDesc: "Define una lista de objetivos para la forma de fuente de datos utilizada",
     confTabRTEConf: "Configuración RTE",
     confTabRTEConfDesc: "Define la configuraciones de editores de texto enriquecido en formularios",
+    confTabRTEtMCE5Conf: "Configuración RTE (TinyMCE 5)",
+    confTabRTEtMCE5Desc: "Define la configuraciones de editores de texto enriquecido en formularios",
+    confTabCodeEditorConf: "Configuración de Editor de Código",
+    confTabCodeEditorConfDesc: "Define las configuraciones del Editor de Código",
     confTabPreviewAssetConf: "Configuración de Vista Previa de Activos",
     confTabPreviewAssetConfDesc: "Define una lista de activos editables asociados con contenido XML",
     confTabPreviewComponentsConf: "Configuración de los Componentes de Vista Previa",
@@ -789,9 +897,28 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     confTabEngineSiteAppContextConfiguration: "Configuración de Contexto de Aplicación de Sitio de Engine",
     confTabEngineSiteAppContextConfigurationDesc: "Configuración del Contexto de Aplicación para el Sitio de Engine",
 
+    /*Postfixes*/
+    iDescription: "Para nuúmero entero.",
+    sDescription: "Para texto.",
+    lDescription: "Para número entero largo.",
+    tDescription: "Para múltiples palabras o tokens.",
+    bDescription: "Para booleano (verdadero o falso).",
+    fDescription: "Para numero de punto flotante.",
+    dDescription: "Para número de punto flotante largo.",
+    dtDescription: "Para fecha en formato de fecha ISO 8601.",
+    toDescription: "Por tiempo en formato HH: mm: ss.",
+    htmlDescription: "Para texto con etiquetas html.",
+    oDescription: "Para objeto.",
+    enDescription: "Para múltiples palabras o tokens.",
+    txtDescription: "Para múltiples palabras o tokens.",
+
     /* Errors */
     error: "Error",
     errorTitle: ". Rellene todos los títulos de los campos y fuentes de datos.",
+    postfixError: "Los campos del modelo requieren su respectivo tipo de datos postfix: ",
+    optionsPostfixError:"las opciones son ",
+    optionPostfixError:"la opción es ",
+    andPostfixError:"y",
     errorName: ". Por favor, rellene el nombre de variable para: ",
     contentTypeNotFound: "El content type del componente no fue encontrado.",
     failConfig: "La configuracioón no pudo ser cargada.",
@@ -809,7 +936,17 @@ CStudioAuthoring.Messages.registerBundle("contentTypes", "es", {
     delete: "Borrar",
     edit: "Editar",
     createNew: "Crear Nuevo",
-    browseExisting: "Buscar Existentes"
+    browseExisting: "Buscar Existentes",
+    searchExisting: "Buscar Existentes",
+
+    /*help popover*/
+    pattern: "Patrón",
+    objectIdPattern:"Inserta un GUID.",
+    yearPattern:"Inserta el año actual (año de 4 dígitos).",
+    monthPattern:"Inserta el mes actual (mes de 2 dígitos del año).",
+    yyyyPattern:"Inserta el año actual (año de 4 dígitos).",
+    mmPattern:"Inserta el mes actual (mes de 2 dígitos del año).",
+    ddPattern:"Inserta el día actual (día de 2 dígitos del mes)."
 });
 
 CStudioAuthoring.Messages.registerBundle("targeting", "es", {
@@ -819,3 +956,15 @@ CStudioAuthoring.Messages.registerBundle("targeting", "es", {
     cancel: "Cancelar",
     userProps: "Propiedades de Usuario"
 });
+
+CStudioAuthoring.Messages.registerBundle("dialogs", "es", {
+  upload: "Subir",
+  uploadSelect: "Por favor seleccionar un archivo para subir",
+  file: "Archivo",
+  chooseFile: "Seleccionar archivo",
+  noFileChosen: "Ningún archivo seleccionado",
+  uploadBtn: "Subir",
+  cancelBtn: "Cancelar",
+  uploading: "Subiendo"
+});
+

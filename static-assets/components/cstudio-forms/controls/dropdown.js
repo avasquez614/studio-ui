@@ -1,8 +1,25 @@
-CStudioForms.Controls.Dropdown = CStudioForms.Controls.Dropdown ||  
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+CStudioForms.Controls.Dropdown = CStudioForms.Controls.Dropdown ||
 function(id, form, owner, properties, constraints, readonly)  {
 	this.owner = owner;
 	this.owner.registerField(this);
-	this.errors = []; 
+	this.errors = [];
 	this.properties = properties;
 	this.constraints = constraints;
 	this.inputEl = null;
@@ -12,7 +29,8 @@ function(id, form, owner, properties, constraints, readonly)  {
 	this.form = form;
 	this.id = id;
 	this.readonly = readonly;
-	
+  this.supportedPostFixes = ["_s"];
+
 	amplify.subscribe("/datasource/loaded", this, this.onDatasourceLoaded);
 
 	return this;
@@ -59,30 +77,30 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 			datasource.getList(this.callback);
     	}
 	},
-    	
+
 	render: function(config, containerEl) {
 		// we need to make the general layout of a control inherit from common
 		// you should be able to override it -- but most of the time it wil be the same
 		containerEl.id = this.id;
-		
+
 		var datasource = null;
 		var showEmptyValue = false;
 		var _self = this;
 
 			for(var i=0; i<config.properties.length; i++) {
 				var prop = config.properties[i];
-				
+
 				if(prop.name == "datasource") {
 					if(prop.value && prop.value != "") {
 						this.datasourceName = (Array.isArray(prop.value)) ? prop.value[0] : prop.value;
 						this.datasourceName = this.datasourceName.replace("[\"","").replace("\"]","");
 					}
 				}
-				
+
 				if(prop.name == "emptyvalue"){
 					showEmptyValue = eval(prop.value);
 				}
-				
+
 				if(prop.name == "readonly" && prop.value == "true"){
 					this.readonly = true;
 				}
@@ -139,11 +157,20 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 						containerEl.appendChild(descriptionEl);
 					}
 
+                    if(_self.controlWidgetContainerEl.inputEl.options.length <= 0){
+                        var optionElEmpty = document.createElement("option");
+                        optionElEmpty.classList.add("hide");
+                        optionElEmpty.disabled = true;
+                        optionElEmpty.selected = "selected";
+                        _self.controlWidgetContainerEl.inputEl.add(optionElEmpty);
+                    }
+
 					if(keyValueList){
 						for(var j=0; j<keyValueList.length; j++) {
 							var item = keyValueList[j];
 							var optionEl = document.createElement("option");
-							optionEl.text = item.value;
+							optionEl.text = item.value || item.value_f || item.value_smv || item.value_imv
+                                || item.value_fmv || item.value_dtmv || item.value_htmlmv;
 							optionEl.value = item.key;
 							_self.controlWidgetContainerEl.inputEl.add(optionEl);
 						}
@@ -153,14 +180,13 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 						inputEl.disabled = true;
 					}
 
-					_self.inputEl.value = _self.getValue(); // set value after loading data source
-
-                    // TODO remove comment once CRAFTERCMS-41 is closed
-                    // This call only makes sense for user actioned changes and
-                    // it is actually wiping out the value of the model when initialising
-                    // _self._onChange(null, _self);
-
-					_self.validate(_self);
+                    var configValue = _self.getValue();
+                    for(var x = 0; x < _self.inputEl.options.length; x++) {
+                        if(_self.inputEl.options[x].value.toLowerCase() === configValue.toLowerCase()) {
+                            _self.inputEl.value = configValue; // set value after loading data source
+                            _self.validate(_self);
+                        }
+                    }
 				}
 			};
 
@@ -172,7 +198,7 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 				datasources.push(currentDatasource);
 
 				if(currentDatasource){
-					currentDatasource.getList(cb);
+                    currentDatasource.getList(cb);
 				}else{
 					this.callback = cb;
 				}
@@ -185,13 +211,13 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 		    }else{
 		    	this.callback = cb;
 		    }
-					
+
 	},
 
 	getValue: function() {
 		return this.value;
 	},
-	
+
 	setValue: function(value) {
 		this.value = value;
         if(this.inputEl)
@@ -199,13 +225,13 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 		this._onChange(null, this);
         this.edited = false;
 	},
-	
+
 	getName: function() {
 		return "dropdown";
 	},
-	
+
 	getSupportedProperties: function() {
-		return [ 
+		return [
 		   	{ label: CMgs.format(langBundle, "datasource"), name: "datasource", type: "datasource:item" },
 		    { label: CMgs.format(langBundle, "allowEmptyValue"), name: "emptyvalue", type: "boolean" },
 			{ label: CMgs.format(langBundle, "readonly"), name: "readonly", type: "boolean" }
@@ -216,7 +242,11 @@ YAHOO.extend(CStudioForms.Controls.Dropdown, CStudioForms.CStudioFormField, {
 		return [
 			{ label: CMgs.format(langBundle, "required"), name: "required", type: "boolean" }
 		];
-	}
+  },
+
+  getSupportedPostFixes: function() {
+    return this.supportedPostFixes;
+  }
 
 });
 

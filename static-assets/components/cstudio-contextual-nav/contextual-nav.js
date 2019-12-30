@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var YEvent = YAHOO.util.Event;
 
@@ -7,6 +24,8 @@ var YEvent = YAHOO.util.Event;
 CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 
 	initialized: false,
+    CMgs: CStudioAuthoring.Messages,
+    contextNavLangBundle: CStudioAuthoring.Messages.getBundle("previewTools", CStudioAuthoringContext.lang),
 
 	/**
 	 * call out to the authoring environment for the nav content and overlay it
@@ -15,12 +34,12 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 	hookNavOverlayFromAuthoring: function() {
 		if(!this.initialized) {
 			this.initialized = true;
-			this.updateContextualNavOverlay()
+      this.updateContextualNavOverlay();
 		}
 	},
 
 	/**
-	 * Add the contextual navigation overlay / authoring support over 
+	 * Add the contextual navigation overlay / authoring support over
 	 * top of the existing page
 	 * @param content to overlay
 	 */
@@ -34,21 +53,23 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 				YAHOO.util.Event.onAvailable("authoringContextNavHeader", function() {
                     document.domain = CStudioAuthoringContext.cookieDomain;
 					CStudioAuthoring.Events.contextNavReady.fire();
-					me.getNavBarContent()
+          me.getNavBarContent();
+          me.addResizeEventToNavbar();
 				}, this);
 			},
 			failure: function() {
 				YAHOO.log("Failed to hook context nav", "error", "authoring nav callback");
 			}
 		});
-	},	
+	},
 
 	/**
 	 * add the contextual nav to the page - first time call
 	 */
 	addNavContent: function(navHtmlContent) {
 
-		var bar = document.createElement("div");
+		var bar = document.createElement("div"),
+            self = this;
 
 		bar.id = "controls-overlay";
 		bar.innerHTML = navHtmlContent;
@@ -76,10 +97,10 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 						});
 
 					me.context.buildModules(config, bar);
+
+                    CStudioAuthoring.Operations.createNavBarDropDown("help");
+                    CStudioAuthoring.Operations.createNavBarDropDown("quick-create");
 				});
-
-                CStudioAuthoring.Operations.createNavBarDropDown("help");
-
 			},
 			failure: function() {},
 			context: this
@@ -89,7 +110,7 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 	getNavBarContent: function() {
 		var callback = {
 			success: function(results) {
-                document.getElementById('nav-user-name').innerHTML = results.first_name + " " + results.last_name;
+                document.getElementById('nav-user-name').innerHTML = results.firstName + " " + results.lastName;
 				document.getElementById('nav-user-email').innerHTML = results.email;
 				document.getElementById('account-dropdown').childNodes[0].nodeValue = results.username;
 			},
@@ -99,8 +120,8 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 		};
 
 		CStudioAuthoring.Service.getUserInfo(callback);
-		document.getElementById('account-dropdown').childNodes[0].nodeValue = CStudioAuthoringContext.user;
-	},
+    document.getElementById('account-dropdown').childNodes[0].nodeValue = CStudioAuthoringContext.user;
+  },
 
     /**
      * given a dropdown configuration, build the nav
@@ -118,7 +139,7 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 		if(navConfig.modules.module.length) {
 			for(var i=0; i<navConfig.modules.module.length; i++) {
 				var module = navConfig.modules.module[i];
-				 
+
 				var cb = {
 					moduleLoaded: function(moduleName, moduleClass, moduleConfig) {
 						try {
@@ -129,7 +150,7 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 						}
 					}
 				};
-				
+
                 CStudioAuthoring.Module.requireModule(
                     module.moduleName,
                     '/static-assets/components/cstudio-contextual-nav/' + module.moduleName + ".js",
@@ -142,9 +163,9 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 
 	/**
      * Hides/Disables first all the modules, so then when looping configuration, they are shown again
-	 * 
+	 *
      */
-	preProcessModules: function(modulesMap, $barEl, onItem) { 
+	preProcessModules: function(modulesMap, $barEl, onItem) {
 		for (var key in modulesMap) {
 			if (modulesMap.hasOwnProperty(key)) {
 				$barEl.find(modulesMap[key]).addClass('hidden');
@@ -167,30 +188,29 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 	showRightModules: function(modules, barEl) {
 		var modulesMap = CStudioAuthoring.ContextualNav.RightModulesMap;
 		this.showModules(modulesMap, modules, barEl);
-        this.showLabelsRightModules();
+        this.showTooltipModules();
 	},
 
     /**
      * Shown right context nav labels
      */
-    showLabelsRightModules: function() {
-        $( "#studioBar" ).delegate( ".nav-link", "mouseenter mouseleave", function(event) {
-            if( event.type === "mouseover"  || event.type === "mouseenter" ){
-                var elt = $( this).find(".nav-label");
-                setTimeout(function () {
-                    if ($("#"+elt.parent().get(0).id+':hover').length != 0) {
-                        elt.addClass('nav-label-hover');
-                        elt.removeClass('nav-label');
-                    }
-                }, 1000, false);
+    showTooltipModules: function() {
+        var self = this;
+        $("#studioBar").tooltip({
+            selector: '.nav-icon',
+            placement: "bottom",
+            title: function () {
+                var text = $(this).attr("data-title"),
+                    textTranslated = self.CMgs.format(self.contextNavLangBundle, text);
+                $(this).attr("title", textTranslated);
+                $(this).attr("data-original-title", textTranslated);
+                return textTranslated;
             }
-            else{
-                var elt = $(this).find(".nav-label-hover");
-                elt.addClass( "nav-label" );
-                elt.removeClass( "nav-label-hover" );
-            }
-        });
 
+        })
+        $("#studioBar").delegate(".nav-icon", "click", function (event) {
+            $(this).tooltip('hide');
+        });
     },
 
 	/**
@@ -199,7 +219,7 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 	showModules: function(modulesMap, modules, barEl) {
 		var PREVIEW_CONTAINERS = '.studio-preview, .site-dashboard';
 		var DISABLED = 'disabled-wcm-dropdown';
-		
+
 		var $barEl = $(barEl);
 
 		this.preProcessModules(modulesMap, $barEl, function(key) {
@@ -211,18 +231,35 @@ CStudioAuthoring.ContextualNav = CStudioAuthoring.ContextualNav || {
 		for (var i = 0; i < modules.length; i++) {
 			var name = modules[i].modulehook;
 			$barEl.find(modulesMap[name]).removeClass('hidden');
-			
+
 			if (name === 'wcm_dropdown') {
 				$(PREVIEW_CONTAINERS).removeClass(DISABLED);
 			}
 
 		};
-	}
+	},
+
+  addResizeEventToNavbar: function() {
+    new ResizeSensor($('.navbar-default'), function () {
+      var studioBarHeight = $('#studioBar .navbar').height(),
+      // There will be only .studio-preview, .site-dashboard or #admin-console, not more than 1, so this selector won't fail
+          $content = $('.studio-preview, .site-dashboard, #admin-console'),
+          contentTop = $content.css('top').replace('px', '');
+
+      // sync position of bar and preview/dashboard/site-config
+      if ( studioBarHeight !== parseInt(contentTop) ) {
+        $('.studio-preview, .site-dashboard').css('top', studioBarHeight)
+          .css('height', 'calc(100% - ' + studioBarHeight + 'px)');
+      }
+    });
+  }
+
 };
 
 CStudioAuthoring.ContextualNav.LeftModulesMap = {
 	'wcm_logo': '.navbar-brand',
 	'wcm_dropdown': '#acn-dropdown-wrapper',
+    'quick-create': '#quick-create',
 	'wcm_content': '#activeContentActions',
 	'admin_console': '#acn-admin-console'
 };

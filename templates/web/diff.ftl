@@ -1,22 +1,40 @@
 <#assign mode = RequestParameters["mode"]!"" />
 <!DOCTYPE html>
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <html>
 <head>
 
     <#include "/templates/web/common/page-fragments/head.ftl" />
 
     <title>Crafter Studio</title>
-    <link rel="stylesheet" type="text/css" href="/studio/static-assets/themes/cstudioTheme/css/global.css?version=${UIBuildId!''}" />
-    <link rel="stylesheet" type="text/css" href="/studio/static-assets/themes/cstudioTheme/css/forms-default.css?version=${UIBuildId!''}" />
-    <link rel="stylesheet" type="text/css" href="/studio/static-assets/styles/forms-engine.css?version=${UIBuildId!''}" />
+    <link rel="stylesheet" type="text/css" href="/studio/static-assets/themes/cstudioTheme/css/global.css?version=${UIBuildId!.now?string('Mddyyyy')}" />
+    <link rel="stylesheet" type="text/css" href="/studio/static-assets/themes/cstudioTheme/css/forms-default.css?version=${UIBuildId!.now?string('Mddyyyy')}" />
+    <link rel="stylesheet" type="text/css" href="/studio/static-assets/styles/forms-engine.css?version=${UIBuildId!.now?string('Mddyyyy')}" />
    
-   <link href="/studio/static-assets/themes/cstudioTheme/css/icons.css?version=${UIBuildId!''}" type="text/css" rel="stylesheet">
-   <link href="/studio/static-assets/yui/container/assets/container.css?version=${UIBuildId!''}" type="text/css" rel="stylesheet">
+   <link href="/studio/static-assets/themes/cstudioTheme/css/icons.css?version=${UIBuildId!.now?string('Mddyyyy')}" type="text/css" rel="stylesheet">
+   <link href="/studio/static-assets/yui/container/assets/container.css?version=${UIBuildId!.now?string('Mddyyyy')}" type="text/css" rel="stylesheet">
 
     <#assign path="/studio/static-assets/components/cstudio-common/resources/" />
-    <script src="${path}en/base.js?version=${UIBuildId!''}"></script>
-    <script src="${path}kr/base.js?version=${UIBuildId!''}"></script>
-    <script src="${path}es/base.js?version=${UIBuildId!''}"></script>
+    <script src="${path}en/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
+    <script src="${path}kr/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
+    <script src="${path}es/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
+    <script src="${path}de/base.js?version=${UIBuildId!.now?string('Mddyyyy')}"></script>
 
     <#include "/templates/web/common/page-fragments/studio-context.ftl" />
 
@@ -35,7 +53,7 @@
             }    
         }        
     </script>
-    <link rel="stylesheet" type="text/css" href="/studio/static-assets/css/diff.css?version=${UIBuildId!''}" />
+    <link rel="stylesheet" type="text/css" href="/studio/static-assets/css/diff.css?version=${UIBuildId!.now?string('Mddyyyy')}" />
 </head>
 <body class="yui-skin-cstudioTheme skin-diff">
     <#if mode != "iframe">
@@ -44,7 +62,7 @@
             <div class="container-fluid">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="/studio/site-dashboard">
-                        <img src="/studio/static-assets/images/crafter_studio_360.png" alt="Crafter Studio">
+                        <img src="/studio/static-assets/images/logo.svg" alt="Crafter CMS">
                     </a>
                 </div>
             </div>
@@ -102,7 +120,7 @@
 
             $('#cancelBtn').on('click', function() {
                 parent.$('body').trigger('diff-end');
-            })
+            });
 
             $(document).on("keyup", function(e) {
                 if (e.keyCode === 27) {	// esc
@@ -110,6 +128,8 @@
                     $(document).off("keyup");
                 }
             });
+
+            $(window).focus();
         })
     </script>
 

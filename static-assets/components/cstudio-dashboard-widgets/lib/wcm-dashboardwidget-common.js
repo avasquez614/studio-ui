@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var YDom = YAHOO.util.Dom;
 var YEvent = YAHOO.util.Event;
 var subChildren = null;
@@ -84,7 +101,7 @@ WcmDashboardWidgetCommon.insertViewLink = function (item, viewLinkId) {
                 var viewLink = document.getElementById(viewLinkId);
 
                 if (viewLink) {
-                    viewLink.innerHTML = ''.concat('<a href="javascript:" class="viewLink', ((item.deleted || item.inFlight ) ? ' non-previewable-edit' : ''), '">View</a>');
+                    viewLink.innerHTML = ''.concat('<a href="javascript:" class="viewLink', ((item.deleted || item.inFlight ) ? ' non-previewable-edit' : ''), '">' + CMgs.format(langBundle, "dashletGoLiveColView") + '</a>');
                 } else {
                     // We cannot assume the DOM will be ready to insert the edit link
                     // that's why we'll poll until the element is available in the DOM
@@ -153,31 +170,29 @@ WcmDashboardWidgetCommon.sortItems = function (items, currentSortBy, currentSort
                         }
                     }
                 }
-            } else if (firstItem[currentSortBy]) {
-                if (currentSortBy == "eventDate") {
-                    var firstDate = WcmDashboardWidgetCommon.convertDate(firstItem[currentSortBy]);
-                    var secondDate = WcmDashboardWidgetCommon.convertDate(secondItem[currentSortBy]);
-                    if (currentSortType == "true") {
-                        return (firstDate == secondDate) ? 0 : (firstDate < secondDate) ? -1 : 1;
-                    } else {
-                        return (firstDate == secondDate) ? 0 : (secondDate < firstDate) ? -1 : 1;
-                    }
-                } else if (!isNaN(firstItem[currentSortBy]) && !isNaN(secondItem[currentSortBy])) {
-                    var firstValue = parseInt(firstItem[currentSortBy], 10);
-                    var secondValue = parseInt(secondItem[currentSortBy], 10);
-                    if (currentSortType == "true") {
-                        return (firstValue == secondValue) ? 0 : (firstValue < secondValue) ? -1 : 1;
-                    } else {
-                        return (firstValue == secondValue) ? 0 : (secondValue < firstValue) ? -1 : 1;
-                    }
-                } else if (typeof(firstItem[currentSortBy]) == "string") {
-                    var firstString = firstItem[currentSortBy].toLowerCase();
-                    var secondString = secondItem[currentSortBy].toLowerCase();
-                    if (currentSortType == "true") {
-                        return (firstString == secondString) ? 0 : (firstString < secondString) ? -1 : 1;
-                    } else {
-                        return (firstString == secondString) ? 0 : (secondString < firstString) ? -1 : 1;
-                    }
+            } else if (currentSortBy == "eventDate" || currentSortBy == "scheduledDate") {
+                var firstDate = WcmDashboardWidgetCommon.convertDate(firstItem[currentSortBy]);
+                var secondDate = WcmDashboardWidgetCommon.convertDate(secondItem[currentSortBy]) != 0 ? WcmDashboardWidgetCommon.convertDate(secondItem[currentSortBy]) : new Date(0);
+                if (currentSortType == "true") {
+                    return (firstDate == secondDate) ? 0 : (firstDate < secondDate) ? -1 : 1;
+                } else {
+                    return (firstDate == secondDate) ? 0 : (secondDate < firstDate) ? -1 : 1;
+                }
+            } else if (!isNaN(firstItem[currentSortBy]) && !isNaN(secondItem[currentSortBy])) {
+                var firstValue = parseInt(firstItem[currentSortBy], 10);
+                var secondValue = parseInt(secondItem[currentSortBy], 10);
+                if (currentSortType == "true") {
+                    return (firstValue == secondValue) ? 0 : (firstValue < secondValue) ? -1 : 1;
+                } else {
+                    return (firstValue == secondValue) ? 0 : (secondValue < firstValue) ? -1 : 1;
+                }
+            } else if (typeof(firstItem[currentSortBy]) == "string") {
+                var firstString = firstItem[currentSortBy].toLowerCase();
+                var secondString = secondItem[currentSortBy].toLowerCase();
+                if (currentSortType == "true") {
+                    return (firstString == secondString) ? 0 : (firstString < secondString) ? -1 : 1;
+                } else {
+                    return (firstString == secondString) ? 0 : (secondString < firstString) ? -1 : 1;
                 }
             }
             return 0;
@@ -505,7 +520,7 @@ WcmDashboardWidgetCommon.init = function (instance) {
                             var searchNumber = searchLimitInput.value;
 
                             //added to protect non numeric input.
-                            if (event.keyCode == "13") {
+                            if (event.keyCode == "13" || event.type === "blur") {
                                 if (!isInt(searchNumber)) { //execute the ajax only if its a number
                                     searchLimitInput.value = instance.defaultSearchNumber;
                                     searchNumber = searchLimitInput.value;
@@ -540,6 +555,8 @@ WcmDashboardWidgetCommon.init = function (instance) {
                             //insert default value if invalid
                             if (!isInt(searchNum)) {
                                 searchLimitInput.value = instance.defaultSearchNumber;
+                            }else{
+                                searchLimitInputEvent(event);
                             }
                         };
 
@@ -789,6 +806,7 @@ WcmDashboardWidgetCommon.editItem = function (matchedElement, isChecked) {
 
     var editCallback = {
         success: function (contentTO, editorId, name, value, draft) {
+            matchedElement.style.pointerEvents = "auto";
             if(CStudioAuthoringContext.isPreview){
                 try{
                     CStudioAuthoring.Operations.refreshPreview();
@@ -919,15 +937,15 @@ WcmDashboardWidgetCommon.previewItem = function (matchedElement, isChecked) {
 /**
  * Select an item in the dashboard widget
  */
-WcmDashboardWidgetCommon.selectItem = function (matchedElement, isChecked) {
+WcmDashboardWidgetCommon.selectItem = function (matchedElement, isChecked, triggerEvent) {
     if (matchedElement.type == "checkbox") WcmDashboardWidgetCommon.Ajax.disableDashboard();
     var callback = {
         success: function (contentTO) {
             if (isChecked == true) {
-                CStudioAuthoring.SelectedContent.selectContent(contentTO);
+                CStudioAuthoring.SelectedContent.selectContent(contentTO, triggerEvent);
             }
             else {
-                CStudioAuthoring.SelectedContent.unselectContent(contentTO);
+                CStudioAuthoring.SelectedContent.unselectContent(contentTO, triggerEvent);
             }
             WcmDashboardWidgetCommon.Ajax.enableDashboard();
         },
@@ -1007,7 +1025,7 @@ WcmDashboardWidgetCommon.loadTableData = function (sortBy, container, widgetId, 
             var previousSortedBy = YDom.get('sortedBy-' + widgetId).innerHTML;
             var previousSortType = YDom.get('sort-type-' + widgetId).innerHTML;
 
-            if (previousSortedBy == currentSortBy) {
+            if ((previousSortedBy == currentSortBy)) {
                 if (previousSortType == "true") {
                     currentSortType = "false";
                 }
@@ -1058,7 +1076,7 @@ WcmDashboardWidgetCommon.loadTableData = function (sortBy, container, widgetId, 
                     for (var i = 0; i < items.length; i++) {
                         var item = items[i];
                         //table = table + "<tr class='" + parentClass + "'><td colspan='5' class='ttBlankRow3'></td></tr>";
-                        var itemRowStart = "<tr class='" + parentClass + "'>";
+                        var itemRowStart = "<tr class='" + parentClass + " " + items[i].path + "'>";
                         var itemRowEnd = "</tr>";
 
                         var subItemRowStart = "<tr class='" + parentClass + "'><td><span class='wcm-widget-margin'></span><span class='ttFirstCol128'><input title='All' class='dashlet-item-check1' id=tableName + 'CheckAll'  type='checkbox' /></span><span class='wcm-widget-margin'></span>";
@@ -1084,7 +1102,7 @@ WcmDashboardWidgetCommon.loadTableData = function (sortBy, container, widgetId, 
             newtable = blankRow + newtable + blankRow;
 
             var tableContentStart = '<table id="' + tableName + '-table" class="table">';
-            var theadContent = '<thead id="' + tableName + '-thead"><tr class="avoid">' + instance.renderItemsHeading() + '</tr></thead>';
+            var theadContent = '<thead class="ttThead" id="' + tableName + '-thead"><tr class="avoid">' + instance.renderItemsHeading() + '</tr></thead>';
             var tbodyContent = '<tbody id="' + tableName + '-tbody" class="ttTbody">' + newtable + '</tbody>';
             var tableContentEnd = '</table>';
 
@@ -1174,30 +1192,30 @@ WcmDashboardWidgetCommon.loadTableData = function (sortBy, container, widgetId, 
             }
 
             YEvent.addListener(tableName + "CheckAll", 'click', function (e) {
-                var checkAllElt = YDom.get(tableName + 'CheckAll');
-                var inputsElt = window.document.querySelectorAll("#" + tableName + " input:enabled");
 
-                if (checkAllElt.checked == true) {
-                    for (var i = 1; i < inputsElt.length; i++) {
-                        inputsElt[i].checked = true;
-                        if (instance.onCheckedClickHandler) {
-                            instance.onCheckedClickHandler(e, inputsElt[i]);
+                YDom.setStyle("loading-" + widgetId, "display", "");
+
+                setTimeout(function(){ 
+                    var checkAllElt = YDom.get(tableName + 'CheckAll');
+                    var inputsElt = window.document.querySelectorAll("#" + tableName + " input:enabled");
+                    var avoidEvent;
+    
+                    if (checkAllElt.checked == true) {
+                        for (var i = 1; i < inputsElt.length; i++) {
+                            inputsElt[i].checked = true;
+                            avoidEvent = i == (inputsElt.length - 1) ? false : true;
+                            WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked, avoidEvent);
                         }
-                        else {
-                            WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked);
+                    } else {
+                        for (var i = 1; i < inputsElt.length; i++) {
+                            inputsElt[i].checked = false;
+                            avoidEvent = i == (inputsElt.length - 1) ? false : true;
+                            WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked, avoidEvent);
                         }
                     }
-                } else {
-                    for (var i = 1; i < inputsElt.length; i++) {
-                        inputsElt[i].checked = false;
-                        if (instance.onCheckedClickHandler) {
-                            instance.onCheckedClickHandler(e, inputsElt[i]);
-                        }
-                        else {
-                            WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked);
-                        }
-                    }
-                }
+    
+                    YDom.setStyle("loading-" + widgetId, "display", "none");
+                }, 10);
             }, this, true);
 
             WcmDashboardWidgetCommon.hideURLCol();
@@ -1281,8 +1299,9 @@ WcmDashboardWidgetCommon.loadFilterTableData = function (sortBy, container, widg
                 var parentClass = "wcm-table-parent-" + name + "-" + count;
 
                 if (!hideEmptyRow || sortDocuments[j].numOfChildren > 0) {
-                    var table = "<tr>";
-                    table += WcmDashboardWidgetCommon.buildItemTableRow(sortDocuments[j], instance, true, count, 0);
+                    var table = "<tr class='itemId_"+sortDocuments[j].path+"'>",
+                        tableRow = WcmDashboardWidgetCommon.buildItemTableRow(sortDocuments[j], instance, true, count, 0);
+                    table = tableRow ? table + tableRow : table;
                     table += "</tr>";
 
                     for (var i = 0; i < items.length; i++) {
@@ -1404,25 +1423,17 @@ WcmDashboardWidgetCommon.loadFilterTableData = function (sortBy, container, widg
                 var checkAllElt = YDom.get(tableName + 'CheckAll');
                 var inputsElt = window.document.querySelectorAll("#" + tableName + " input:enabled");
 
+                WcmDashboardWidgetCommon.Ajax.disableDashboard();
+
                 if (checkAllElt.checked == true) {
                     for (var i = 1; i < inputsElt.length; i++) {
                         inputsElt[i].checked = true;
-                        if (instance.onCheckedClickHandler) {
-                            instance.onCheckedClickHandler(e, inputsElt[i]);
-                        }
-                        else {
-                            WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked);
-                        }
+                        WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked);
                     }
                 } else {
                     for (var i = 1; i < inputsElt.length; i++) {
                         inputsElt[i].checked = false;
-                        if (instance.onCheckedClickHandler) {
-                            instance.onCheckedClickHandler(e, inputsElt[i]);
-                        }
-                        else {
-                            WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked);
-                        }
+                        WcmDashboardWidgetCommon.selectItem(inputsElt[i], inputsElt[i].checked);
                     }
                 }
             }, this, true);
@@ -1595,6 +1606,46 @@ WcmDashboardWidgetCommon.clearItem = function (matchedElement, dashBoardData) {
             }
         }
         WcmDashboardWidgetCommon.selectItem(matchedElement, false);
+    }
+};
+
+/**
+ * refresh a specific dashboard
+ */
+WcmDashboardWidgetCommon.refreshDashboard = function (inst) {
+    var instace = WcmDashboardWidgetCommon.dashboards[inst];
+    var filterByTypeEl = YDom.get('widget-filterBy-'+instace.widgetId);
+    var filterByTypeValue = 'all';
+    if(filterByTypeEl && filterByTypeEl.value != '') {
+        filterByTypeValue = filterByTypeEl.value;
+    }
+
+    var searchNumberEl = YDom.get('widget-showitems-'+instace.widgetId);
+    var searchNumberValue =  instace.defaultSearchNumber;
+    if(searchNumberEl && searchNumberEl.value != '') {
+        searchNumberValue = searchNumberEl.value;
+    }
+
+    var sortBy=instace.currentSortBy? instace.currentSortBy:instace.defaultSortBy;
+    var searchNumber=instace.searchNumber? instace.searchNumber:instace.defaultSearchNumber;
+
+    WcmDashboardWidgetCommon.loadFilterTableData(
+        sortBy,
+        YDom.get(instace.widgetId),
+        instace.widgetId,
+        searchNumber,filterByTypeValue);
+};
+
+/**
+ * refresh all dashboards
+ */
+WcmDashboardWidgetCommon.refreshAllDashboards = function () {
+    if (typeof WcmDashboardWidgetCommon != 'undefined') {
+        WcmDashboardWidgetCommon.refreshDashboard("MyRecentActivity");
+        WcmDashboardWidgetCommon.refreshDashboard("recentlyMadeLive");
+        WcmDashboardWidgetCommon.refreshDashboard("approvedScheduledItems");
+        WcmDashboardWidgetCommon.refreshDashboard("GoLiveQueue");
+        CStudioAuthoring.SelectedContent.clear();
     }
 };
 

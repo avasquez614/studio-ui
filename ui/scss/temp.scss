@@ -1,3 +1,20 @@
+/*!
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 
 @import "variables";
 @import "util/animate";
@@ -92,7 +109,7 @@ body, var {
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 100;
+  z-index: 99;
   position: fixed;
 
   table {
@@ -309,7 +326,7 @@ div#acn-active-content {
   font-weight: 600;
   line-height: 20px;
   margin-bottom: -4px;
-  padding: 13px 25px 16.5px 8px;
+  padding: 13px 4px 16.5px 8px;
   font-size: 16px;
 }
 
@@ -375,6 +392,10 @@ div#acn-active-content {
   }
   .treenode-label {
     margin: 0 0 5px 0;
+
+    .highlighted {
+      font-weight: bold;
+    }
   }
   .acn-dropdown-toggler {
     text-decoration: none;
@@ -474,6 +495,12 @@ div#acn-active-content {
 
 .acn-dropdown-wrapper .acn-dropdown-menu div.acn-parent {
   margin: 15px 0 0 0;
+
+  .treenode-label {
+    &.highlighted {
+      font-weight: bold;
+    }
+  }
 }
 
 .acn-dropdown-wrapper .acn-dropdown-menu li.last {
@@ -485,21 +512,18 @@ div#acn-active-content {
   padding: 0 0 0 17px;
 }
 
-.acn-dropdown-wrapper .acn-dropdown-menu .acn-analytics {
-  background: url('/studio/static-assets/themes/cstudioTheme/images/icons/icon_strip_vertical.gif') no-repeat left;
-  background-position: 0 -1179px;
-  padding: 2px 0 0 18px;
-}
-
 .acn-admin-console {
   font-size: 14px;
   line-height: 15px;
+  margin-top: 15px !important;
   color: #333333;
   cursor: pointer;
 }
 
-#admin-console {
-  margin-top: 15px; 
+#cstudio-admin-console-workarea {
+  iframe {
+    border: 0;
+  }
 }
 
 .acn-admin-console:hover {
@@ -532,10 +556,21 @@ a.acn-parent-folder:before {
   font-style: italic;
 }
 
+.acn-dropdown-menu-inner{
+  min-height: calc(100% - 131px);
+}
+
 .acn-dropdown-wrapper .acn-dropdown-footer {
   position: relative;
-  text-align: right;
+  text-align: center;
   width: inherit;
+  border-top: 1px solid #ccc;
+  margin-top: 28px;
+  height: 103px;
+}
+
+.acn-dropdown-wrapper .acn-dropdown-footer a{
+  display: inline-block;
 }
 
 .acn-dropdown-wrapper .acn-dropdown-footer-resize {
@@ -842,14 +877,16 @@ span.acn-page-deleted a, span.acn-page-deleted a:hover {
   .ygtvlp:before, .ygtvtp:before, .ygtvlph:before, .ygtvlphh:before, .ygtvtph:before, .ygtvtphh:before {
     content: "\f196";
     position: absolute;
-    top: 2px;
+    top: 3px;
+    left: 2px;
     width: 10px;
   }
 
   .ygtvtm:before, .ygtvtmh:before, .ygtvtmhh:before, .ygtvlm:before, .ygtvlmh:before, .ygtvlmhh:before{
     content: "\f147";
     position: absolute;
-    top: 2px;
+    top: 3px;
+    left: 2px;
     width: 10px;
   }
 }
@@ -927,6 +964,14 @@ span.acn-page-deleted a, span.acn-page-deleted a:hover {
   padding-left: 2px;
   text-align: left;
   vertical-align: top;
+}
+
+.acn-tooltip .acn-name {
+  /* For Firefox */
+  white-space: pre-wrap;
+  word-break: break-all;
+  /* For Chrome and IE */
+  word-wrap: break-word;
 }
 
 .acn-width80 {
@@ -1555,6 +1600,10 @@ div.acnBox td.acnLiveTableRight div.acnGoLiveSetTime a:hover,
   text-decoration: none;
 }
 
+.admin-delete-view .items-feedback{
+  color: #777;
+}
+
 div.acnBox table.acnLiveTable td div {
   float: left;
   padding: 0 5px 0 0;
@@ -1906,6 +1955,78 @@ div.acnBox table.acnLiveTable td.acnLiveTableRight {
   text-align: center;
 }
 
+div.rejectContainer{
+
+
+  color:#000 !important;
+  overflow: initial !important;
+
+  table.acnLiveTable{
+    width: 100% !important;
+    table-layout: fixed;
+
+    thead{
+      background-color: #7f9db9;
+      color: #fff;
+      font-weight: normal;
+      margin: 0;
+      overflow: hidden;
+      padding: 7px 20px 7px 27px;
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+
+      tr{
+        height: 45px;
+
+        th{
+          border-radius: inherit;
+
+          &.checkboxTh{
+            width: 10%;
+            border-top-left-radius: 6px;
+          }
+          &.itemTh{
+            width: 65%;
+          }
+          &.submittedTh{
+            width: 25%;
+            border-top-right-radius: 6px;
+          }
+
+        }
+      }
+
+    }
+
+    tbody{
+
+      border: 1px solid #CCCCCC;
+
+      tr{
+        border-bottom: 1px solid #fff;
+        height: 40px;
+
+        td {
+          padding: 3px 5px 10px 0;
+        }
+
+      }
+
+      tr:last-child{
+        border-bottom-color: #CCC;
+      }
+
+      div.in{
+        word-break: break-all !important;
+      }
+    }
+
+  }
+
+}
+
+
+
 .liveColLast {
   padding-right: 20px;
   _padding-right: 35px;
@@ -1989,8 +2110,7 @@ div.acnBox table.acnLiveTable td.acnLiveTableRight {
   height: 20px;
   left: 1px;
   margin: 2px 0 0 3px;
-  _position: none;
-  position: none;
+  position: static;
   vertical-align: middle;
   width: 18px;
 }
@@ -2227,7 +2347,7 @@ div#cal1Container {
 .yui-calendar td.calcell {
   background: #fff;
   border: 0px;
-  #padding: 5px;
+  padding: 5px;
 }
 
 .yui-calendar td.calcell {
@@ -2708,7 +2828,7 @@ span.acn-canned-search {
   opacity: 0.5!important;
 }
 
-#cstudioPreviewAnalyticsOverlay {
+#cstudioPreviewTargetingOverlay {
   padding: 0;
   border: 1px solid rgba(201, 201, 201, 1);
   background: #efefef;
@@ -2741,6 +2861,53 @@ span.acn-canned-search {
 
   table{
     margin-bottom: 10px;
+  }
+
+  .control-container.datetime{
+    .control-label {
+      float: left;
+    }
+
+
+    .date-container, .timezone-container {
+      display: block;
+      padding-left: 100px;
+    }
+
+    .date-container {
+      .yui-calcontainer {
+        float: none;
+        position: relative;
+      }
+
+      .date-control.date {
+        margin-right: 40px;
+      }
+
+      select.date-control {
+        background-color: #fff;
+        padding: 1px;
+        margin-right: 5px;
+      }
+    }
+
+    .timezone-container {
+      margin-top: 10px;
+
+      .zone-picker {
+        width: 220px;
+        background-color: white;
+      }
+
+    }
+  }
+
+  #targeting-container .hint {
+    visibility: hidden;
+  }
+
+  #targeting-container .control-container:hover .hint{
+    visibility: visible;
   }
 
 }
@@ -3131,12 +3298,8 @@ span.acn-canned-search {
   background: repeating-linear-gradient( 45deg, #5d84a9, #5d84a9 10px, #7e9dbb 10px, #7e9dbb 20px );
 }
 
-.studio-preview ~ #controls-overlay #studioBar .navbar-right-wrapper{
+.studio-preview #studioBar .navbar-right-wrapper {
   float: right;
-
-  @media (max-width: 1320px){
-    width: 506px;
-  }
 }
 
 .site-dashboard {
@@ -3161,3 +3324,4 @@ span.acn-canned-search {
 @import "cstudio-view";
 @import "preview";
 @import "navbar";
+@import "preview-dialog";

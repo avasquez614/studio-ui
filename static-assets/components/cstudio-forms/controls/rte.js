@@ -1,8 +1,25 @@
-CStudioForms.Controls.RTE = CStudioForms.Controls.RTE ||  
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+CStudioForms.Controls.RTE = CStudioForms.Controls.RTE ||
 function(id, form, owner, properties, constraints, readonly, pencilMode)  {
 	this.owner = owner;
 	this.owner.registerField(this);
-	this.errors = []; 
+	this.errors = [];
 	this.properties = properties;
 	this.constraints = constraints;
 	this.inputEl = null;
@@ -21,8 +38,9 @@ function(id, form, owner, properties, constraints, readonly, pencilMode)  {
 	this.codeModeYreduction = 130;	// Amount of pixels deducted from the total height value of the RTE in code mode
 	this.rteWidth;
 	this.delayedInit = true; 	// Flag that indicates that this control takes a while to initialize
-    this.pencilMode = pencilMode;
-	
+  this.pencilMode = pencilMode;
+  this.supportedPostFixes = ["_html"];
+
 	return this;
 }
 
@@ -43,10 +61,10 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
     getLabel: function() {
         return CMgs.format(langBundle, "richTextEditor");
     },
-    
+
     /**
      * render the RTE
-     */	
+     */
 	render: function(config, containerEl) {
 		var _thisControl = this;
 
@@ -58,24 +76,24 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 				if(prop.value && prop.Value != "") {
 					configuration = prop.value;
 				}
-				
+
 				break;
 			}
 		};
-			
+
 		CStudioForms.Controls.RTEManager.getRteConfiguration(configuration, "no-role-support", {
 			success: function(rteConfig) {
 
 				_thisControl._loadPlugins(rteConfig.rteModules.module, {
 					success: function() {
 						this.control._initializeRte(this.controlConfig, this.rteConfig, this.containerEl);
-						
+
 						this.control.form.registerBeforeUiRefreshCallback({
 							beforeUiRefresh: function() {
-								var content = tinyMCE.activeEditor.getContent({format : 'raw'});
+								var content = tinymce2.activeEditor.getContent({format : 'raw'});
                                 if(content != ""){
                                     //Could be that the model hasn't been loaded yet
-                                    tinyMCE.activeEditor.contextControl.updateModel(content);
+                                    tinymce2.activeEditor.contextControl.updateModel(content);
                                 }
 							},
 							context: this.control
@@ -83,7 +101,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 					},
 					failure: function() {
 					},
-					
+
 					controlConfig: config,
 					rteConfig: rteConfig,
 					containerEl: containerEl,
@@ -105,20 +123,20 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 	getValue: function() {
 		if(this.editor) {
 			this.editor.save();
-			value = this.inputEl.value; 
+			value = this.inputEl.value;
 			this.value = value;
 		}
-		
+
 		return this.value;
 	},
-		
+
 	/**
 	 * set the value for the control
 	 */
 	setValue: function(value) {
 		this.value = value;
 		try {
-			tinyMCE.activeEditor.setContent(value, {format : 'raw'});
+			tinymce2.activeEditor.setContent(value, {format : 'raw'});
 		}
 		catch(err) {
 		};
@@ -134,7 +152,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 
 	updateModel: function(value) {
 		this.form.updateModel(this.id, CStudioForms.Util.unEscapeXml(value));
-	},	
+	},
 
 	/**
 	 * get the widget name
@@ -142,7 +160,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 	getName: function() {
 		return "rte";
 	},
-	
+
 	/**
 	 * get supported properties
 	 */
@@ -169,7 +187,11 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		return [
 			{ label: CMgs.format(langBundle, "required"), name: "required", type: "boolean" }
 		];
-	},
+  },
+
+  getSupportedPostFixes: function() {
+    return this.supportedPostFixes;
+  },
 
 	/**
 	 * Scroll to the top of an element, minus a pixel offset (in the case of an RTE, we use the pixel offset to move the RTE under the
@@ -183,7 +205,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 	    window.scrollTo(0, scrollY);
 	},
 
-	// Clear the current selection in tinymce's text editor
+	// Clear the current selection in tinymce2's text editor
 	clearTextEditorSelection: function () {
 		var rootEl = this.editor.dom.getRoot(),
 			caretEl = document.createElement("span"),
@@ -191,7 +213,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 
 		caretEl.id = "caret_pos_holder";
 		caretEl.appendChild(textEl);
-		// Place cursor at the beginning of the textarea				
+		// Place cursor at the beginning of the textarea
 		if (rootEl.firstChild) {
 			YDom.insertBefore(caretEl, rootEl.firstChild);
 		} else {
@@ -211,10 +233,8 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 	        YDom.replaceClass(this.containerEl, "rte-inactive", "rte-active");
             var elements = YDom.getElementsByClassName('cstudio-form-container', 'div');
             YDom.setStyle(elements[0],'margin-top', '50px');
-			
+
 			this.resize();
-	       
-	        this.scrollToTopOfElement(this.containerEl, 30);
 		}
 	},
 
@@ -227,10 +247,10 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 			this.resizeEditor(this.editor, false, isPaste);		// Resize the editor (in case its contents exceed its set height)
 		} else {
 			// The RTE is in code mode
-			this.resizeCodeMirror(this.editor.codeMirror);
+			this.resizeCodeView(this.editor.codeView);
 		}
 	},
-	
+
 	focusOut: function() {
 
 		var widthVal, heightVal, sizeCookie, cookieHeight;
@@ -241,42 +261,42 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		YDom.setStyle(elements[0], 'margin-top', '20px');
 
 		if (YDom.hasClass(this.containerEl, "text-mode")) {
-			// The RTE is in text mode        	
-			sizeCookie = tinymce.util.Cookie.getHash("TinyMCE_" + this.editor.id + "_size" + window.name);
+			// The RTE is in text mode
+			sizeCookie = tinymce2.util.Cookie.getHash("tinymce2_" + this.editor.id + "_size" + window.name);
 			cookieHeight = (sizeCookie) ? sizeCookie.ch : 0;
 
 			// Give priority to the height value stored in the cookie (if there's one)
 			heightVal = (cookieHeight) ? cookieHeight : this.editor.settings.height;
 
-			tinymce.DOM.setStyle(this.editor.editorId + "_ifr", "height", heightVal + "px");
+			tinymce2.DOM.setStyle(this.editor.editorId + "_ifr", "height", heightVal + "px");
 			this.editor.getWin().scrollTo(0, 0); // Scroll to the top of the editor window
 
 			// The editor selection is automatically cleared in IE9 when the text editor is blurred
 			/*if (!YAHOO.env.ua.ie || YAHOO.env.ua.ie >= 10) {
 				this.clearTextEditorSelection();
 			}*/
-			this.editor.onDeactivate.dispatch(this.editor, null); // Fire tinyMCE handlers for onDeactivate (eg. used by contextmenu)
+			this.editor.onDeactivate.dispatch(this.editor, null); // Fire tinymce2 handlers for onDeactivate (eg. used by contextmenu)
 		} else {
 			// The RTE is in code mode
 			widthVal = this.containerEl.clientWidth - this.codeModeXreduction;
-			this.editor.codeMirror.setSelection({
-				line: 0,
-				ch: 0
-			}); // Clear the current selection -in case there was any
-			this.editor.codeMirror.setCursor({
-				line: 0,
-				ch: 0
-			}); // Set the cursor to the beginning of the code editor
-			this.editor.codeMirror.setSize(widthVal, +this.editor.settings.height);
-			this.editor.codeMirror.scrollTo(0, 0); // Scroll to the top of the editor window
-			this.editor.setContent(this.editor.codeMirror.getValue()); // Transfer content in codeMirror to RTE
+
+			this.editor.codeView.selection.moveTo(0, 0); // Set the cursor to the beginning of the code editor
+
+			var editorContainer = this.editor.codeView.container;
+			editorContainer.style.width = widthVal + "px";
+			editorContainer.style.height = this.editor.settings.height + "px";
+			this.editor.codeView.resize();
+
+			this.editor.setContent(this.editor.codeView.getValue()); // Transfer content in codeView to RTE
+
+			this.editor.codeView.clearSelection(); // Clear the current selection -in case there was any
 		}
 		this.save(); // Save the content in RTE and update form model
 	},
 
 	resizeEditor: function (editor, onInit, isPaste) {
 
-		var sizeCookie = tinymce.util.Cookie.getHash("TinyMCE_" + editor.id + "_size" + window.name);
+		var sizeCookie = tinymce2.util.Cookie.getHash("tinymce2_" + editor.id + "_size" + window.name);
 		var cookieHeight = (sizeCookie) ? sizeCookie.ch : 0;
 		/* BEGIN: resizing editor treatment */
 		var formBody = document.querySelectorAll('html, body');
@@ -284,31 +304,41 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		formBody = formBody[0].scrollTop > 0 ? formBody[0] : formBody[1];
 		/* end */
 
-		tinymce.DOM.setStyle(editor.editorId + "_ifr", "height", cookieHeight + "px");
+		tinymce2.DOM.setStyle(editor.editorId + "_ifr", "height", cookieHeight + "px");
 
 		var heightVal = Math.max(editor.settings.height, cookieHeight),
-			currentHeight = +tinymce.DOM.getStyle(this.editor.editorId + "_ifr", "height").split("px")[0];
+			currentHeight = +tinymce2.DOM.getStyle(this.editor.editorId + "_ifr", "height").split("px")[0];
 
 		heightVal = (!onInit) ? Math.max(heightVal, editor.getDoc().body.scrollHeight) : heightVal;
+		tinymce2MaxHeight = formBody.offsetHeight - 130 > this.rteControlHeight ? formBody.offsetHeight - 130 : this.rteControlHeight;
+
+		heightVal = heightVal > tinymce2MaxHeight ? tinymce2MaxHeight : heightVal;
 
 		if (currentHeight < heightVal || onInit) {
-			tinymce.DOM.setStyle(editor.editorId + "_ifr", "height", heightVal + "px");
+			tinymce2.DOM.setStyle(editor.editorId + "_ifr", "height", heightVal + "px");
 
 			if(isPaste){
-				formBody.scrollTop = scrollTop + heightVal - 25;
+				if( $("#" + tinymce2.DOM.doc.activeElement.id).offset() ){
+					formBody.scrollTop = $("#" + tinymce2.DOM.doc.activeElement.id).offset().top - 40;
+				}else{
+					formBody.scrollTop = scrollTop;
+				}
 			}else{
 				formBody.scrollTop = scrollTop;
 			}
 		}
 	},
 
-	resizeCodeMirror : function (codeMirror) {
+	resizeCodeView : function (codeView) {
 		var cmHeight = 400,
 			cmWidth = this.containerEl.clientWidth - this.codeModeXreduction,
-			currentHeight = +tinymce.DOM.getStyle(this.editor.codeMirror.getScrollerElement(), "height").split("px")[0];
+			currentHeight = +tinymce2.DOM.getStyle(codeView.container, "height").split("px")[0];
 
 		if (currentHeight < cmHeight) {
-			codeMirror.setSize(cmWidth, cmHeight);
+			var editorContainer = codeView.container;
+			editorContainer.style.width = cmWidth + "px";
+			editorContainer.style.height = cmHeight + "px";
+			codeView.resize();
 		}
 	},
 
@@ -375,7 +405,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		this.containerEl = containerEl;
 		this.fieldConfig = config;
 		this.rteConfig = rteConfig;
-		
+
 		YDom.addClass(this.containerEl, "rte-inactive");
 		YDom.addClass(this.containerEl, "text-mode");
 		// we need to make the general layout of a control inherit from common
@@ -384,7 +414,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 
   		    YDom.addClass(titleEl, 'cstudio-form-field-title');
 			titleEl.innerHTML = config.title;
-		
+
 		var controlWidgetContainerEl = document.createElement("div");
 		YDom.addClass(controlWidgetContainerEl, 'cstudio-form-control-rte-container');
 
@@ -404,7 +434,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 			this.inputEl = inputEl;
 			inputEl.value = (this.value == "_not-set") ? config.defaultValue : this.value;
 			var rteUniqueInitClass = CStudioAuthoring.Utils.generateUUID();
-			YDom.addClass(inputEl, rteUniqueInitClass);	
+			YDom.addClass(inputEl, rteUniqueInitClass);
 			YDom.addClass(inputEl, 'cstudio-form-control-input');
 
 		var descriptionEl = document.createElement("span");
@@ -417,7 +447,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		controlWidgetContainerEl.appendChild(descriptionEl);
 
 		YEvent.on(inputEl, 'change', this._onChangeVal, this);
-		
+
 		for(var i=0; i<config.properties.length; i++) {
 			var prop = config.properties[i];
 
@@ -441,8 +471,10 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
                         }
                     }else{
                         height = 330;
-                    }
-					
+					}
+
+					this.rteControlHeight = height;
+
 					break;
 				case "maxlength" :
 					inputEl.maxlength = prop.value;
@@ -453,34 +485,38 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 				case "forceBRTags" :
 					var forceBRTags = (prop.value == "true") ? true : false;
 					break;
-				case "forceRootBlockPTag" : 
+				case "forceRootBlockPTag" :
 					var forceRootBlockPTag = (prop.value == "false") ? false : "p";
 					break;
 			}
 		}
 
-		var pluginList = "paste, noneditable, cs_table, cs_inlinepopups, lists, ";  //cs_contextmenu - contextual nav
+		var pluginList = "advhr, cs_inlinepopups, cs_table, directionality, emotions, " +
+						 "fullscreen, inlinepopups, insertdatetime, layer, media, " +
+						 "nonbreaking, paste, preview, searchreplace, " +
+						 "style, table, template, visualblocks, visualchars, wordcount, xhtmlxtras, ";
+
 		for(var l=0; l<rteConfig.rteModules.module.length; l++) {
 			// mce plugin names cannot have a - in them
 			pluginList += "-"+rteConfig.rteModules.module[l].replace(/-/g,"")+",";
 		}
 
-		var toolbarConfig1 = (rteConfig.toolbarItems1 && rteConfig.toolbarItems1.length !=0) ? 
+		var toolbarConfig1 = (rteConfig.toolbarItems1 && rteConfig.toolbarItems1.length !=0) ?
 			rteConfig.toolbarItems1 : "bold,italic,|,bullist,numlist";
-		
+
 		var toolbarConfig2 = (rteConfig.toolbarItems2 && rteConfig.toolbarItems2.length !=0) ? rteConfig.toolbarItems2 : "";
 		var toolbarConfig3 = (rteConfig.toolbarItems3 && rteConfig.toolbarItems3.length !=0) ? rteConfig.toolbarItems3 : "";
 		var toolbarConfig4 = (rteConfig.toolbarItems4 && rteConfig.toolbarItems4.length !=0) ? rteConfig.toolbarItems4 : "";
 
-		var styleFormats = (rteConfig.styleFormats && rteConfig.styleFormats.length !=0) ? eval(rteConfig.styleFormats) : [];	
-							
-		var editor = tinyMCE.init({
+		var styleFormats = (rteConfig.styleFormats && rteConfig.styleFormats.length !=0) ? eval(rteConfig.styleFormats) : [];
+
+		var editor = tinymce2.init({
 	        // General options
 	        mode : "textareas",
 	        editor_selector : rteUniqueInitClass,
 	        theme : "advanced",
 	        skin : "cstudio-rte",
-			width: '100%', // Why? Field width should be flexible, because of responsiveness, should resize based on the screen size, this works together with max width set on post render event below on setup: method 
+			width: '100%', // Why? Field width should be flexible, because of responsiveness, should resize based on the screen size, this works together with max width set on post render event below on setup: method
 	        height: height,
 	        encoding : "xml",
             valid_elements :"+*[*]",
@@ -499,18 +535,18 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 			remove_trailing_brs: false,
 
 			style_formats: styleFormats,
-  
+
 	        theme_advanced_resizing : true,
 	        theme_advanced_resize_horizontal : false,
 	        theme_advanced_toolbar_location : "top",
 	        theme_advanced_toolbar_align : "left",
 	        theme_advanced_statusbar_location : "bottom",
-	        
+
 	        theme_advanced_buttons1 : toolbarConfig1,
-	        theme_advanced_buttons2 : toolbarConfig2, 
+	        theme_advanced_buttons2 : toolbarConfig2,
 	        theme_advanced_buttons3 : toolbarConfig3,
 	        theme_advanced_buttons4 : toolbarConfig4,
-	        
+
 	        content_css : "",
 
 	        // Drop lists for link/image/media/template dialogs
@@ -519,14 +555,14 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 	        // external_image_list_url : "js/image_list.js",
 	        // media_external_list_url : "js/media_list.js",
 			plugins : pluginList,
-			
+
 			setup: function(ed) {
 
 				try {
 					ed.contextControl = _thisControl;
 					ed.isPaste = false;
 					_thisControl.editor = ed;
-	
+
 		      		ed.onKeyUp.add(function(ed, e) {
 		      			ed.save();
 		      			ed.contextControl._onChange(null, ed.contextControl);
@@ -559,17 +595,18 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 						var value = ed.contextControl.inputEl.value;
                         if(value != "")//Could be that the model hasn't been loaded yet(Fix the repeat group issue)
                             ed.contextControl.updateModel(value);//Should we really update the model here?
-						ed.contextControl._onChange(null, ed.contextControl);				
+						ed.contextControl._onChange(null, ed.contextControl);
 			        });
 			        ed.onChange.add(function(ed, l) {
 						_self.edited = true;
-						
+
 						if(!ed.isPaste){
 							_self.resize();
 						}else{
 							_self.resize(true);
+							ed.isPaste = false;
 						}
-						
+
 					});
 
 		            ed.onInit.add(function(ed) {
@@ -590,12 +627,14 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 				    		}
 				    	}
 					});
-					
+
 	   				ed.onPostRender.add(function(ed, cm) {
 
 	   					ed.contextControl.resizeEditor(ed, true);
-						_thisControl.containerEl.querySelector('.mceLayout').style.maxWidth = width + 'px'; // Why? Field width should be flexible, because of responsiveness, should resize based on the screen size
 
+						if(_thisControl.containerEl.querySelector('.mceLayout')) {
+							_thisControl.containerEl.querySelector('.mceLayout').style.maxWidth = width + 'px'; // Why? Field width should be flexible, because of responsiveness, should resize based on the screen size
+						}
 
 	   					// Add counter element
 	   					var refEl = YSelector.query("table.mceLayout tbody", _thisControl.containerEl, true),
@@ -632,18 +671,18 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 						YEvent.on(inputEl, 'keyup', _thisControl.count, countEl);
 						YEvent.on(inputEl, 'keypress', _thisControl.count, countEl);
 						YEvent.on(inputEl, 'mouseup', _thisControl.count, countEl);
-						
+
 						if (!navigator.appName == 'Microsoft Internet Explorer') {
-							// Bind focus event 
-							tinymce.dom.Event.add(ed.getWin(), 'focus', function(e) {
+							// Bind focus event
+							tinymce2.dom.Event.add(ed.getWin(), 'focus', function(e) {
 								_thisControl.form.setFocusedField(_thisControl);
-							}); 
+							});
 						} else {
 							// IE10 fires the 'focus' event on the window every time
-							// you click on it; therefore, it becomes impossible for 
+							// you click on it; therefore, it becomes impossible for
 							// the RTE to lose focus. To work around this, we'll focus
 							// on the RTE only after clicking on its body.
-							tinymce.dom.Event.add(ed.getBody(), 'click', function(e) {
+							tinymce2.dom.Event.add(ed.getBody(), 'focus', function(e) {
 								_thisControl.form.setFocusedField(_thisControl);
 							});
 						}
@@ -670,15 +709,15 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
         var callback = {};
         callback.beforeSave = function () {
 
-			//if codemirror has changes - update rte.
+			//if codeView has changes - update rte.
 			if (! YDom.hasClass(_thisControl.containerEl, "text-mode")) {
-				_thisControl.editor.setContent(_thisControl.editor.codeMirror.getValue()); // Transfer content in codeMirror to RTE
+				_thisControl.editor.setContent(_thisControl.editor.codeView.getValue()); // Transfer content in codeView to RTE
 			}
             _thisControl.save();
         };
         _thisControl.form.registerBeforeSaveCallback(callback);
 	},
-	
+
 	/**
 	 * handle element clicks
 	 */
@@ -703,9 +742,9 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 			{ moduleLoaded: function(moduleName, moduleClass, moduleConfig) {
 					moduleClass.renderImageEdit(editor,event.target);
 			  }
-		});		
+		});
 	},
-	
+
 	/**
 	 * apply override styles to the RTE
 	 * Override styles override styles from your the site stylesheet
@@ -717,65 +756,74 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		tt = dom.doc.createTextNode(styleOverrides);
 
 		//First add the currentStyleSheets
-		var styleSheets = tinymce.explode(this._getContentCSS(editor) + "," + this._getCurrentStyleSheets());
+		var styleSheets = tinymce2.explode(this._getContentCSS(editor) + "," + this._getCurrentStyleSheets());
 
-		tinymce.each(styleSheets, function(u) {
+		tinymce2.each(styleSheets, function(u) {
 			dom.loadCSS(u);
 		});
-		
-		if(configuration) {
+
+		if(configuration && styleOverrides) {
 			ss.setAttribute('type', 'text/css');
 			//ss.setAttribute('title', channel);
 			dom.doc.head.appendChild(ss);
-		
+
 			if (ss.styleSheet) {  // IE (6,7,8)
 				ss.styleSheet.cssText = styleOverrides;
-			} 
-			else {
-				ss.appendChild(tt);		// all other browsers
 			}
-		} 
+			else {
+                if (tt.data != 'undefined'){
+                    ss.appendChild(tt);		// all other browsers
+                }
+			}
+		}
 	},
 
 	/**
 	 * Load the default theme style sheet
 	 */
 	_getContentCSS: function(editor){
-		var url = tinymce.ThemeManager.urls[editor.settings.theme] || tinymce.documentBaseURL.replace(/\/$/, '');
+		var url = tinymce2.ThemeManager.urls[editor.settings.theme] || tinymce2.documentBaseURL.replace(/\/$/, '');
 		return editor.baseURI.toAbsolute(url + "/skins/" + editor.settings.skin + "/content.css");
 	},
-	
+
 	/**
 	 * return the style sheets that should be applied to the RTE given the current context it is in
 	 */
 	_getCurrentStyleSheets: function(channel) {
 		var stylesheets  = "/studio/static-assets/themes/cstudioTheme/css/forms-rte.css";
 		var rteConfig = this.rteConfig;
-		
+
 		// if rteStylesheets xml tag is not defined, use only default css
 		if (typeof rteConfig.rteStylesheets === 'undefined' || typeof rteConfig.rteStylesheets.link !== 'object') {
 			return stylesheets;
 		};
 
 		// if rteStylesheets xml tag is defined, add them to the style sheet list
-		for(var i=0; i<rteConfig.rteStylesheets.link.length; i++) {
-			var item = rteConfig.rteStylesheets.link[i];
-			if(!item.appliesToChannel 
-					|| (!channel && item.appliesToChannel == "default")
-					|| (channel && item.appliesToChannel.indexOf(channel) != -1 )) {				
-				stylesheets += ", " + item.url;
-			}
-		}
+        if(rteConfig.rteStylesheets.link.length){
+            for(var i=0; i<rteConfig.rteStylesheets.link.length; i++) {
+                var item = rteConfig.rteStylesheets.link[i];
+                if(!item.appliesToChannel
+                    || (!channel && item.appliesToChannel == "default")
+                    || (channel && item.appliesToChannel.indexOf(channel) != -1 )) {
+                    stylesheets += ", " + item.url;
+                }
+            }
+        }else{
+            if(rteConfig.rteStylesheets.link.url){
+                stylesheets += ", " + rteConfig.rteStylesheets.link.url;
+            }
+        }
+
 		return stylesheets;
 	},
-	
+
 	/**
-	 * apply style sheets for channel 
+	 * apply style sheets for channel
 	 */
 	_applyChannelStyleSheets: function(channel) {
 		var stylesheets = this._getCurrentStyleSheets(channel).split(",");
 
-		var head = tinyMCE.activeEditor.dom.doc.getElementsByTagName('head')[0];
+		var head = tinymce2.activeEditor.dom.doc.getElementsByTagName('head')[0];
 
 		// Clear all elements from head; IE doesn't like head.innerHTML = ''
 		CStudioAuthoring.Utils.emptyElement(head);
@@ -786,72 +834,72 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 
 		for(var i=0; i<stylesheets.length; i++) {
 			var stylesheet = { loadFromPreview: true, url: stylesheets[i] };
-			
+
 	        if(stylesheet.loadFromPreview) {
 	            // assume relative to preview server
 	            link.setAttribute('href', CStudioAuthoringContext.previewAppBaseUri + stylesheet.url);
-	        } 
+	        }
 	        else {
 	            // assume fully qualified
 	            link.setAttribute('href', stylesheet.url);
 	        }
-	
+
 	        head.appendChild(link);
 		}
-		
-		this._applyOverrideStyles(tinyMCE.activeEditor, this.rteConfig);
+
+		this._applyOverrideStyles(tinymce2.activeEditor, this.rteConfig);
 	},
-	
+
 	/**
 	 * load the javascript plugins for the given RTE configuration
 	 */
 	_loadPlugins: function(plugins, initCallback) {
 		// create list of plugins
 		this.waitingForPlugins = [];
-		
+
 		// init the plugin list
 		for(var k=0; k<plugins.length; k++) {
 			this.waitingForPlugins[this.waitingForPlugins.length] = plugins[k];
-		}		
-		
+		}
+
 		// define the callback that will fire the RTE init when all plugins are loaded
 		var loadedCb = {
 			moduleLoaded: function(moduleName, moduleClass, moduleConfig) {
 				moduleConfig.context.registeredPlugins[moduleConfig.context.registeredPlugins.length] = moduleClass;
-				 
+
 				for(var j=0; j<moduleConfig.context.waitingForPlugins.length; j++) {
 					var pluginName = "cstudio-forms-controls-rte-" + moduleConfig.context.waitingForPlugins[j];
-					
+
 					if(pluginName == moduleName) {
 						moduleConfig.context.waitingForPlugins.splice(j,1);
-						break;		
+						break;
 					}
 				}
-				
+
 				if(moduleConfig.context.waitingForPlugins.length == 0) {
 					// init the rte
 					initCallback.success();
 				}
 			}
 		};
-		
-		// load the modules	
+
+		// load the modules
 		for(var i=0; i<plugins.length; i++) {
 			CStudioAuthoring.Module.requireModule(
 				"cstudio-forms-controls-rte-"+ plugins[i],
 				'/static-assets/components/cstudio-forms/controls/rte-plugins/' + plugins[i] + '.js',
 				{ context: this},
-				loadedCb);		
+				loadedCb);
 		}
 	},
 
 
-	/** 
+	/**
 	 * on change
 	 */
 	_onChange: function(evt, obj) {
 		obj.value = obj.inputEl.value;
-		
+
 		if(obj.required) {
 			if(obj.inputEl.value == "") {
 				obj.setError("required", "Field is Required");
@@ -864,7 +912,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		}
 		else {
 			obj.renderValidation(false, true);
-		}			
+		}
 
 		obj.owner.notifyValidation();
 		obj.count(evt, obj.countEl, obj.inputEl);
@@ -874,7 +922,7 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
         obj.edited = true;
         this._onChange(evt, obj);
     },
-	
+
 	/**
 	 * perform count calculation on keypress
 	 * @param evt event
@@ -884,10 +932,10 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 		// 'this' is the input box
 	    el = (el) ? el : this;
 	    var text = el.value;
-	    
+
 	    var charCount = ((text.length) ? text.length : ((el.textLength) ? el.textLength : 0));
 	    var maxlength = (el.maxlength && el.maxlength != '') ? el.maxlength : -1;
-	    
+
 	    if(maxlength != -1) {
 		    if (charCount > el.maxlength) {
 				// truncate if exceeds max chars
@@ -895,8 +943,8 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 				  this.value = text.substr (0, el.maxlength);
 				  charCount = el.maxlength;
 			    }
-	      
-	      		
+
+
 				if (evt && evt != null
 				&& evt.keyCode!=8 && evt.keyCode!=46 && evt.keyCode!=37
 				&& evt.keyCode!=38 && evt.keyCode!=39 && evt.keyCode!=40	// arrow keys
@@ -908,20 +956,20 @@ YAHOO.extend(CStudioForms.Controls.RTE, CStudioForms.CStudioFormField, {
 	       		}
 			}
 	    }
-	    
+
         if (maxlength != -1) {
         	countEl.innerHTML = charCount + ' / ' + el.maxlength;
-        } 
+        }
         else {
         	countEl.innerHTML = charCount;
         }
     },
-    
+
     /**
      * call this instead of calling editor.save()
      */
     save: function() {
-		this.editor.save();	
+		this.editor.save();
 		this._onChange(null, this);
 		this.updateModel(this.inputEl.value);
     }
@@ -938,20 +986,20 @@ YEvent.delegate("formContainer", "click", function(e, matchedEl) {
 		if (!rteRoot) {
 			// Clicked outside of an RTE
 			// Focus out of the RTE that's currently showing
-			tinymce.activeEditor.contextControl.form.setFocusedField(null);
+			tinymce2.activeEditor.contextControl.form.setFocusedField(null);
 		}
 	}, "div, span, td");
 
 
 /* -------------------------------------------- */
-/* --- Patch tinymce's ColorSplitButton methods --- */
-/* Original File : <studio-root>/src/main/webapp/modules/editors/tinymce/tiny_mce.js
+/* --- Patch tinymce2's ColorSplitButton methods --- */
+/* Original File : <studio-root>/src/main/webapp/modules/editors/tinymce2/tiny_mce.js
 /* -------------------------------------------- */
-tinymce.ui.ColorSplitButton.prototype.renderMenu = function() {
-	var d = tinymce, c = d.DOM, a = d.dom.Event, b = d.is, e = d.each;
+tinymce2.ui.ColorSplitButton.prototype.renderMenu = function() {
+	var d = tinymce2, c = d.DOM, a = d.dom.Event, b = d.is, e = d.each;
 
     var p = this, h, k = 0, q = p.settings, g, j, l, o, f;
-    o = c.add(document.getElementById(tinymce.activeEditor.editorId + "_toolbargroup"), "div", {role: "listbox",id: p.id + "_menu","class": q.menu_class + " " + q["class"],style: "position:absolute;left:0;top:-1000px;"});
+    o = c.add(document.getElementById(tinymce2.activeEditor.editorId + "_toolbargroup"), "div", {role: "listbox",id: p.id + "_menu","class": q.menu_class + " " + q["class"],style: "position:absolute;left:0;top:-1000px;"});
     h = c.add(o, "div", {"class": q["class"] + " mceSplitButtonMenu"});
     c.add(h, "span", {"class": "mceMenuLine"});
     g = c.add(h, "table", {role: "presentation","class": "mceColorSplitMenu"});
@@ -1003,8 +1051,8 @@ tinymce.ui.ColorSplitButton.prototype.renderMenu = function() {
     return o
 };
 
-tinymce.ui.ColorSplitButton.prototype.showMenu = function() {
-	var d = tinymce, c = d.DOM, a = d.dom.Event;
+tinymce2.ui.ColorSplitButton.prototype.showMenu = function() {
+	var d = tinymce2, c = d.DOM, a = d.dom.Event;
 
     var f = this, g, j, i, h;
     if (f.isDisabled()) {
@@ -1037,15 +1085,15 @@ tinymce.ui.ColorSplitButton.prototype.showMenu = function() {
 }
 
 /* --------------------------------------- */
-/* --- Patch tinymce's ListBox methods --- */
-/* Original File : <studio-root>/src/main/webapp/modules/editors/tinymce/tiny_mce.js
+/* --- Patch tinymce2's ListBox methods --- */
+/* Original File : <studio-root>/src/main/webapp/modules/editors/tinymce2/tiny_mce.js
 /* --------------------------------------- */
-tinymce.ui.ListBox.prototype.renderMenu =  function() {
-	var e = tinymce.each,
-		c = tinymce.DOM;
+tinymce2.ui.ListBox.prototype.renderMenu =  function() {
+	var e = tinymce2.each,
+		c = tinymce2.DOM;
 
     var g = this, f;
-    f = g.settings.control_manager.createDropMenu(g.id + "_menu", {menu_line: 1, "container": tinymce.activeEditor.editorId + "_toolbargroup" , "class": g.classPrefix + "Menu mceNoIcons",max_width: 160,max_height: 160});
+    f = g.settings.control_manager.createDropMenu(g.id + "_menu", {menu_line: 1, "container": tinymce2.activeEditor.editorId + "_toolbargroup" , "class": g.classPrefix + "Menu mceNoIcons",max_width: 160,max_height: 160});
     f.onHideMenu.add(function() {
         g.hideMenu();
         g.focus()
@@ -1076,8 +1124,8 @@ tinymce.ui.ListBox.prototype.renderMenu =  function() {
     g.menu = f
 };
 
-tinymce.ui.ListBox.prototype.showMenu = function() {
-	var d = tinymce,
+tinymce2.ui.ListBox.prototype.showMenu = function() {
+	var d = tinymce2,
 		b = d.dom.Event,
 		c = d.DOM,
 		e = d.each;
@@ -1113,12 +1161,12 @@ tinymce.ui.ListBox.prototype.showMenu = function() {
 };
 
 /* ------------------------------------------ */
-/* --- Patch tinymce's MenuButton methods --- */
-/* Original File : <studio-root>/src/main/webapp/modules/editors/tinymce/tiny_mce.js
+/* --- Patch tinymce2's MenuButton methods --- */
+/* Original File : <studio-root>/src/main/webapp/modules/editors/tinymce2/tiny_mce.js
 /* ------------------------------------------ */
-tinymce.ui.MenuButton.prototype.renderMenu = function() {
+tinymce2.ui.MenuButton.prototype.renderMenu = function() {
     var f = this, e;
-    e = f.settings.control_manager.createDropMenu(f.id + "_menu", {menu_line: 1, "container": tinymce.activeEditor.editorId + "_toolbargroup", "class": this.classPrefix + "Menu",icons: f.settings.icons});
+    e = f.settings.control_manager.createDropMenu(f.id + "_menu", {menu_line: 1, "container": tinymce2.activeEditor.editorId + "_toolbargroup", "class": this.classPrefix + "Menu",icons: f.settings.icons});
     e.onHideMenu.add(function() {
         f.hideMenu();
         f.focus()
@@ -1127,8 +1175,8 @@ tinymce.ui.MenuButton.prototype.renderMenu = function() {
     f.menu = e
 };
 
-tinymce.ui.MenuButton.prototype.showMenu = function() {
-	var c = tinymce,
+tinymce2.ui.MenuButton.prototype.showMenu = function() {
+	var c = tinymce2,
 		a = c.dom.Event,
 		b = c.DOM,
 		d = c.each;

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource =
     CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource
     ||  function(fieldName, containerEl, form, type)  {
@@ -5,10 +22,10 @@ CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource =
         this.fieldName = fieldName;
         this.containerEl = containerEl;
         this.form = form;
-        this["interface"] = (type.indexOf("datasource:") != -1) ? type.split("datasource:")[1] : "" + type;
+        this["interface"] = (type.indexOf("datasource:") !== -1) ? type.split("datasource:")[1] : "" + type;
         this.fieldValue = [];
         return this;
-    }
+    };
 
 YAHOO.extend(CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource, CStudioAdminConsole.Tool.ContentTypes.PropertyType, {
 
@@ -18,7 +35,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource, CStu
         var valuesEl, controlEl;
 
         var datasources = this.form.datasources;
-        value = value.replace(/[^a-zA-Z0-9,]/g, '');
+        value = value.replace(/[^a-zA-Z0-9,-]/g, '');
 
         if (datasources.length) {
             this.fieldValue = (!value) ? [] :
@@ -28,7 +45,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource, CStu
 
             for(var i=0; i < datasources.length; i++) {
                 var datasource = datasources[i];
-                if (datasource["interface"] == type) {
+                if (datasource["interface"] === type) {
 
                     controlEl = this.createControl(datasource, updateFn, type, itemId);
                     valuesEl.appendChild(controlEl);
@@ -66,7 +83,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource, CStu
 
         var clickFn = function(){};
 
-        if(itemId == "checkboxgroup"){
+        if(itemId === "checkboxgroup"){
             cbEl.type = "radio";
             if(!this.radioGroupName){
                 this.radioGroupName = CStudioAuthoring.Utils.generateUUID();
@@ -82,7 +99,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource, CStu
 
             clickFn =  function() {
                 if (this.checked) {
-                    if($(this).parent().parent().find('input[type="checkbox"]:checked').length == 1){
+                    if($(this).parent().parent().find('input[type="checkbox"]:checked').length === 1){
                         _self.removeAll();
                     }
                     _self.addValue(this.id);
@@ -98,7 +115,7 @@ YAHOO.extend(CStudioAdminConsole.Tool.ContentTypes.PropertyType.Datasource, CStu
         cbEl.value = datasource.id;
         cbEl.id = datasource.id;
 
-        var datasourceId = datasource.id.replace(/[^a-zA-Z0-9,]/g, '');
+        var datasourceId = datasource.id.replace(/[^a-zA-Z0-9,-]/g, '');
 
         if (this.fieldValue.indexOf(datasourceId) > -1) {
             cbEl.checked = true;

@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioForms.Controls.CheckBoxGroup = CStudioForms.Controls.CheckBoxGroup ||
     function(id, form, owner, properties, constraints, readonly)  {
         this.owner = owner;
@@ -16,6 +33,7 @@ CStudioForms.Controls.CheckBoxGroup = CStudioForms.Controls.CheckBoxGroup ||
         this.hiddenEl = null;
         // Stores the type of data the control is now working with (this value is fetched from the datasource controller)
         this.dataType = null;
+        this.supportedPostFixes = ["_o"];
 
         amplify.subscribe("/datasource/loaded", this, this.onDatasourceLoaded);
 
@@ -403,6 +421,14 @@ YAHOO.extend(CStudioForms.Controls.CheckBoxGroup, CStudioForms.CStudioFormField,
         if(value === "") {
             value = [];
         }
+        else if(typeof value === 'string') {
+            try {
+                value = JSON.parse(value);
+            }
+            catch(err){
+                console.log(err);
+            }
+        }
 
         this.value = value;
         this.form.updateModel(this.id, this.getValue());
@@ -445,6 +471,10 @@ YAHOO.extend(CStudioForms.Controls.CheckBoxGroup, CStudioForms.CStudioFormField,
         return [
             { label:CMgs.format(langBundle, "minimumSelection"), name:"minSize", type: "int"}
         ];
+    },
+
+    getSupportedPostFixes: function() {
+      return this.supportedPostFixes;
     }
 
 });

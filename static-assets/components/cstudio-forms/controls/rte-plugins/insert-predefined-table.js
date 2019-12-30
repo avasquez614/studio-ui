@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 CStudioForms.Controls.RTE.InsertPredefinedTable = CStudioForms.Controls.RTE.InsertPredefinedTable || {
 
         createControl: function(name, cm) {
@@ -18,7 +35,7 @@ CStudioForms.Controls.RTE.InsertPredefinedTable = CStudioForms.Controls.RTE.Inse
                         this.add({
                             title: el.name,
                             onclick: function() {
-                                tinyMCE.activeEditor.execCommand('mceInsertContent', false, el.prototype);
+                                tinymce2.activeEditor.execCommand('mceInsertContent', false, el.prototype);
                             }
                         });
                     }
@@ -47,9 +64,9 @@ CStudioForms.Controls.RTE.InsertPredefinedTable = CStudioForms.Controls.RTE.Inse
         }
     };
 
-tinymce.create('tinymce.plugins.CStudioManagedPredefinedTablePlugin', CStudioForms.Controls.RTE.InsertPredefinedTable);
+tinymce2.create('tinymce2.plugins.CStudioManagedPredefinedTablePlugin', CStudioForms.Controls.RTE.InsertPredefinedTable);
 
 // Register plugin with a short name
-tinymce.PluginManager.add('insertpredefinedtable', tinymce.plugins.CStudioManagedPredefinedTablePlugin);
+tinymce2.PluginManager.add('insertpredefinedtable', tinymce2.plugins.CStudioManagedPredefinedTablePlugin);
 
 CStudioAuthoring.Module.moduleLoaded("cstudio-forms-controls-rte-insert-predefined-table", CStudioForms.Controls.RTE.InsertPredefinedTable);
